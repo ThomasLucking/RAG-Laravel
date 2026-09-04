@@ -11,7 +11,6 @@ On a fresh clone, `vendor/` and `node_modules/` are not committed. Install both,
 ```bash
 composer install
 pnpm install
-php artisan sail:install
 ```
 
 ### 2. Configuring the environment
