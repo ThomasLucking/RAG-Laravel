@@ -69,8 +69,6 @@ curl http://ollama:11434/api/generate -d '{
   "stream": false
 }'
 
-# Chat (multi-turn)
-
 # Embeddings (for pgvector storage)
 curl http://ollama:11434/api/embeddings -d '{
   "model": "nomic-embed-text",
