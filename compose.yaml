@@ -24,7 +24,7 @@ services:
         depends_on:
             - pgsql
     pgsql:
-        image: 'postgres:18-alpine'
+        image: pgvector/pgvector:pg18 
         ports:
             - '${FORWARD_DB_PORT:-5432}:5432'
         environment:
@@ -48,9 +48,20 @@ services:
                 - '${DB_USERNAME}'
             retries: 3
             timeout: 5s
+    ollama:
+        image: ollama/ollama
+        ports:
+            - '${FORWARD_OLLAMA_PORT:-11434}:11434'
+        volumes:
+            - ollama_data:/root/.ollama
+        networks:
+            - sail
+
 networks:
     sail:
         driver: bridge
 volumes:
     sail-pgsql:
+        driver: local
+    ollama_data:
         driver: local
