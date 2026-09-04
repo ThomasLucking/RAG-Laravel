@@ -1,0 +1,36 @@
+erDiagram
+    %% the documents table is to store the original documents
+    documents {
+        bigint id PK
+        text title
+        text content
+    }
+    %% then the table has a many to many relationship so we need a join table to store the relationships between documents and tags
+    tags {
+        bigint id PK
+        varchar(200) title
+        timestamp updated_at
+    }
+
+    document_tags {
+        bigint documents_id FK
+        bigint tags_id FK
+    }
+
+    %% then there's a table to store the chunks of the documents, 
+    %% when we transform the raw data into embeddings, we will store the embeddings in this table as well
+    %% when we transform the raw data into tsvector, we will store the tsvector in this table as well
+    chunks {
+        bigint id PK
+        bigint documents_id FK
+        text headers
+        text chunk_content
+        vector embeddings
+        tsvector chunks
+    }
+
+    documents ||--o{ document_tags : "has"
+    tags ||--o{ document_tags : "has"
+    documents ||--o{ chunks : "splits into"
+
+    
