@@ -16,8 +16,9 @@ return new class extends Migration
             $table->foreignId('document_id')->constrained()->cascadeOnDelete();
             $table->text('headers');
             $table->text('chunk_content');
-            $table->vector('embeddings');
-            $table->tsvector('chunks');
+            $table->vector('embeddings', dimensions: 768)->nullable();
+            $table->tsvector('search_vector')
+                ->storedAs("to_tsvector('english', chunk_content)");
             $table->timestamps();
         });
 
