@@ -1,58 +1,90 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Project Setup
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Local Development Setup (Docker + pgvector + Ollama)
 
-## About Laravel
+This project runs on Laravel Sail with two additional pieces layered on top of the default stack: a **pgvector-enabled PostgreSQL** image (for storing embeddings) and an **Ollama** service (for running local LLMs/embedding models). Both are defined as services in `compose.yaml` alongside the standard Sail services.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### 1. Starting the stack
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+./vendor/bin/sail up -d
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+This builds/starts all services defined in `compose.yaml`, including `pgsql` and `ollama`. It does **not** download any Ollama models — that's a separate, manual step (see below).
 
-## Contributing
+### 2. PostgreSQL with pgvector
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+The `pgsql` service uses the `pgvector/pgvector` image instead of the plain `postgres` image, so the `vector` extension binary is available out of the box. It still needs to be enabled per-database via a migration:
 
-## Code of Conduct
+```php
+public function up(): void
+{
+    DB::statement('CREATE EXTENSION IF NOT EXISTS vector');
+}
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Run migrations as usual:
 
-## Security Vulnerabilities
+```bash
+./vendor/bin/sail artisan migrate
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 3. Ollama service
 
-## License
+The `ollama` service uses the official `ollama/ollama` image and is **not** a custom build — no Dockerfile is involved for it. It exposes:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- Port `11434` (mapped to the host)
+- A named volume (`ollama_data:/root/.ollama`) so downloaded models **persist across `sail down` / `sail up` cycles**
+
+**Pulling a model** is a manual step, run *after* the container is up (this is not defined in `compose.yaml` and does not happen automatically):
+
+```bash
+docker exec -it ollama ollama pull llama3.2:3b
+docker exec -it ollama ollama pull nomic-embed-text
+```
+
+Once pulled, models stay in the volume — you don't need to re-pull them on every restart, only if the volume itself is removed (e.g. `sail down -v`).
+
+### 4. Networking rules
+
+All inter-container communication uses **Docker service names**, not `localhost` and not container IPs:
+
+| From | To | Host to use |
+|---|---|---|
+| App container → PostgreSQL | `pgsql:5432` | service name |
+| App container → Ollama | `ollama:11434` | service name |
+| Your host machine (e.g. DB client, curl) → PostgreSQL | `localhost:5432` | forwarded port |
+| Your host machine → Ollama | `localhost:11434` | forwarded port |
+| Browser → Vite dev server | `localhost:5173` | forwarded port |
+
+`localhost` inside a container refers to that container itself — using it for service-to-service calls is the most common source of connection errors in this setup.
+
+### 5. Ollama API quick reference
+
+```bash
+# Text generation
+curl http://ollama:11434/api/generate -d '{
+  "model": "llama3.2:3b",
+  "prompt": "Why is the sky blue?",
+  "stream": false
+}'
+
+# Chat (multi-turn)
+
+# Embeddings (for pgvector storage)
+curl http://ollama:11434/api/embeddings -d '{
+  "model": "nomic-embed-text",
+  "prompt": "Why is the sky blue?"
+}'
+
+# List locally available models
+curl http://ollama:11434/api/tags
+```
+
+Replace `ollama` with `localhost` when running these from your host machine instead of from inside another container.
+
+### 6. Verifying the setup
+
+- **Volume persistence:** pull a model, run `sail down` then `sail up -d`, and confirm `docker exec -it ollama ollama list` still shows it.
+- **App → Ollama connectivity:** from inside the app container, `curl http://ollama:11434` should respond with `Ollama is running`.
+- **App → Postgres connectivity:** confirm `DB_HOST=pgsql` (not `localhost`) in `.env`, matching the service name in `compose.yaml`.
