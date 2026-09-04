@@ -109,3 +109,25 @@ Replace `ollama` with `localhost` when running these from your host machine inst
 - **Volume persistence:** pull a model, run `sail down` then `sail up -d`, and confirm `docker compose exec ollama ollama list` still shows it.
 - **App → Ollama connectivity:** from inside the app container, `curl http://ollama:11434` should respond with `Ollama is running`.
 - **App → Postgres connectivity:** confirm `DB_HOST=pgsql` (not `localhost`) in `.env`, matching the service name in `compose.yaml`.
+
+## LLM Performance Metrics
+
+Local LLM benchmarks are captured via [`docs/evaluate.js`](docs/evaluate.js), which hits a local Ollama instance and logs generation/embedding timings. Results are recorded in [`docs/llm_metrics.md`](docs/llm_metrics.md).
+
+**Generation** (`llama3.2:3b`)
+
+| Metric | Value |
+| --- | --- |
+| Total duration | 655.19 ms |
+| Load duration | 3.10 ms |
+| Prompt eval duration | 83.24 ms |
+| Prompt eval count | 32 tokens |
+| Eval duration | 567.11 ms |
+| Eval count | 8 tokens |
+
+**Embedding** (`nomic-embed-text`)
+
+| Metric | Value |
+| --- | --- |
+| Elapsed time | 13.45 ms |
+| Vector length | 768 |
