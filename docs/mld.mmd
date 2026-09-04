@@ -3,7 +3,7 @@ erDiagram
     documents {
         bigint id PK
         text title
-        text content
+        text summary
     }
     %% then the table has a many to many relationship so we need a join table to store the relationships between documents and tags
     tags {
