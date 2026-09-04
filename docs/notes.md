@@ -1,7 +1,6 @@
 ollama as a docker image link
 
-docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
-
+The `ollama` service is now managed by Sail via `compose.yaml` (see README) — start it with `./vendor/bin/sail up -d` rather than a standalone `docker run`. Running a separate `docker run ... --name ollama ...` alongside the Compose stack collides on the container name and host port, and stores models in a different volume (`ollama` here vs. `ollama_data` in `compose.yaml`), so don't use it.
 
 this is to test if the model answers inside of the docker container
 ```sh
