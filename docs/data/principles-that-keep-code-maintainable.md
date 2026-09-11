@@ -36,4 +36,5 @@ Composition and separation of concerns push toward the same outcome by
 keeping parts independent and easy to recombine. Fail fast and measure
 first add a practical check: surface mistakes early, and confirm a
 change is actually needed before spending effort on it.
-
+</content>
+</invoke>

@@ -1,13 +1,3 @@
----
-title: Virtual machines and how they work
-summary: Overview of hypervisors, virtual hardware, snapshots, overhead, and the main use cases for virtualization, with a note on how containers differ.
-tags:
-  - virtualization
-  - hypervisor
-  - vm
-  - containers
-updated: 2025-09-04
----
 
 ## Running one computer inside another
 

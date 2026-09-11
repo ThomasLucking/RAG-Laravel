@@ -1,5 +1,4 @@
 ---
-title: The shell, the terminal, and basic UNIX commands
 summary: Covers the shell versus the terminal, filesystem navigation, standard streams, pipes and redirection, permissions, and the move from commands to scripts.
 tags:
   - unix
