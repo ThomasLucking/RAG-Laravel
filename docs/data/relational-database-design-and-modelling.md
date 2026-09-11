@@ -2,7 +2,7 @@
 title: Relational database design and modelling
 summary: Explains why relational storage beats plain files, the relation and key concepts behind it, and how modelling turns entities into tables.
 tags:
-  - databases
+  - database
   - data-modelling
   - sql
 updated: 2026-02-02

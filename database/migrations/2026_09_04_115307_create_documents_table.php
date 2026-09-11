@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
+            $table->string('source_path')->unique()->after('id');
             $table->text('title');
             $table->text('summary');
             $table->timestamps();

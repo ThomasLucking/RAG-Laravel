@@ -36,5 +36,21 @@ the flow of the basically the logic of the application is
      b. Send chunk text → embedding model → get vector → store in embeddings column
 
 
+after analysing the documents with claude there was 3 files that were inconsistent and 1 that had polution in it
+
+`virtual-machines-and-when-to-use-them.md` had no frontmatter
+`working-in-the-unix-command-line` had no title
+`principles-that-keep-code-maintainable` had random html tags 
+`relational-database-design-and-modelling.md` had databases instead of database so i changed it to database
 
 
+
+I downloaded a new package called League\commonMark
+https://commonmark.thephpleague.com/2.x/customization/abstract-syntax-tree/
+
+to parse the markdown for to ingest the corpus, I was also thinking of using an AST to help me decide the chunk sizes regarding for database.
+
+
+todo list:
+  add 1 index for the embedding column
+  add 1 index for the tsvector to the column
