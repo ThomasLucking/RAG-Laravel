@@ -12,7 +12,19 @@ class UpdateDocumentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
+    }
+
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        if (is_string($this->tags)) {
+            $this->merge([
+                'tags' => array_values(array_filter(array_map('trim', explode(',', $this->tags)))),
+            ]);
+        }
     }
 
     /**
@@ -23,7 +35,12 @@ class UpdateDocumentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'title' => ['required', 'string'],
+            'summary' => ['required', 'string'],
+            'tags' => ['nullable', 'array'],
+            'tags.*' => ['string', 'distinct', 'max:255'],
+            'updated' => ['required', 'date'],
+            'content' => ['required', 'string'],
         ];
     }
 }

@@ -4,86 +4,139 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreDocumentRequest;
 use App\Http\Requests\UpdateDocumentRequest;
-use App\Models\Document;
+use App\Services\DocumentIngestionService;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Symfony\Component\Yaml\Yaml;
-use Illuminate\Support\Arr;
+
 class DocumentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
+    public function __construct(
+        private readonly DocumentIngestionService $documentIngestionService
+    ) {}
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        return view('formulaire');
+        $documents = $this->listDocuments();
+
+        return view('formulaire', compact('documents'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreDocumentRequest $request)
     {
-        $dataEverything = $request->validated();
+        $data = $request->validated();
 
-        $dataToBeParseByYaml = Arr::except($dataEverything, ['content']);
+        $this->documentIngestionService->store($data);
 
-        $content = $dataEverything['content'];
+        return redirect()->route('documents.create')
+            ->with('status', "\"{$data['title']}\" was added to the corpus.");
+    }
 
-        $formattedYaml = Yaml::dump($dataToBeParseByYaml);
+    public function show(string $document)
+    {
+        $parsed = $this->readDocumentFile($document);
 
-        $combinedData = "---\n{$formattedYaml}---\n"  . $content;
+        return response()->json([
+            'slug' => $document,
+            'title' => $parsed['frontmatter']['title'] ?? null,
+            'summary' => $parsed['frontmatter']['summary'] ?? null,
+            'tags' => Arr::get($parsed['frontmatter'], 'tags', []),
+            'updated' => $parsed['frontmatter']['updated'] ?? null,
+            'content' => $parsed['content'],
+        ]);
+    }
 
-        $directory = base_path('docs/data');
+    public function edit(string $document)
+    {
 
-        if (! File::exists($directory)) {
-            File::makeDirectory($directory, 0755, true);
+        $parsed = $this->readDocumentFile($document);
+
+        return view('formulaire', [
+            'document' => $document,
+            'title' => $parsed['frontmatter']['title'] ?? null,
+            'summary' => $parsed['frontmatter']['summary'] ?? null,
+            'tags' => Arr::get($parsed['frontmatter'], 'tags', []),
+            'content' => $parsed['content'],
+        ]);
+
+    }
+
+    public function update(UpdateDocumentRequest $request, string $document)
+    {
+        $path = $this->resolveDocumentPath($document);
+        $data = $request->validated();
+
+        $this->documentIngestionService->update($path, $data);
+
+        return response()->json([
+            'slug' => $document,
+            'title' => $data['title'],
+            'summary' => $data['summary'],
+            'tags' => $data['tags'] ?? [],
+            'updated' => $data['updated'],
+            'content' => $data['content'],
+        ]);
+    }
+
+    public function destroy(string $document)
+    {
+
+        $path = $this->resolveDocumentPath($document);
+
+        $this->documentIngestionService->delete($path);
+
+        return response()->json(['slug' => $document, 'deleted' => true]);
+
+    }
+
+    private function listDocuments(): array
+    {
+        $files = File::glob(base_path('docs/data').'/*.md');
+
+        $documents = collect($files)->map(function (string $path) {
+            $slug = pathinfo($path, PATHINFO_FILENAME);
+            $parsed = $this->readDocumentFile($slug);
+
+            return [
+                'slug' => $slug,
+                'title' => $parsed['frontmatter']['title'] ?? $slug,
+            ];
+        })->sortBy('title')->values()->all();
+
+        return $documents;
+    }
+
+    private function resolveDocumentPath(string $document): string
+    {
+        $slug = basename($document);
+
+        $path = base_path('docs/data/'.$slug.'.md');
+
+        if (! File::exists($path)) {
+            abort(404, 'Document file not found.');
         }
 
-        $path = "{$directory}/{$dataEverything['title']}.md";
+        return $path;
+    }
 
-        if (File::put($path, $combinedData) === false) {
-            abort(500, 'Failed to write document file.');
+    private function readDocumentFile(string $document): array
+    {
+        $path = $this->resolveDocumentPath($document);
+
+        $raw = File::get($path);
+
+        if (! preg_match('/^---\r?\n(.*?)\r?\n---\r?\n?(.*)$/s', $raw, $matches)) {
+            return [
+                'frontmatter' => [],
+                'content' => trim($raw),
+            ];
         }
 
-    }
+        $frontmatter = Yaml::parse($matches[1]) ?? [];
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Document $document)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Document $document)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateDocumentRequest $request, Document $document)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Document $document)
-    {
-        //
+        return [
+            'frontmatter' => $frontmatter,
+            'content' => trim($matches[2]),
+        ];
     }
 }

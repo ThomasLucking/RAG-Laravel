@@ -1,14 +1,13 @@
 ---
-title: A command-line todo list in Rust
-summary: Introduces Rust's ownership model, Option and Result, pattern matching, Cargo, and what makes a CLI pleasant to use.
+title: 'A command-line todo list in Rust'
+summary: "Introduces Rust's ownership model, Option and Result, pattern matching, Cargo, and what makes a CLI pleasant to use."
+updated: '2026-09-22'
 tags:
-  - rust
-  - memory-safety
-  - cli
-  - cargo
-updated: 2026-05-04
+    - rust
+    - memory-safety
+    - cli
+    - cargo
 ---
-
 ## Memory safety without a garbage collector
 
 Rust is a compiled, systems-level language that aims for the performance of
@@ -76,7 +75,7 @@ technical failure.
 
 Persisting data between runs raises its own small design questions: what
 format to store data in, how to handle a missing or corrupted file
-gracefully, and how to keep output stable enough to be read by both
+gracefully, and how to keep output stable enough to be read by bothdwadawd
 humans and other tools. A tool that reports success or failure through
 its exit code integrates far better into scripts than one that only
 looks right when run interactively.
