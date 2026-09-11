@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
-            $table->string('source_path')->unique()->after('id'); // this is for the slug to prevent repetition when creating documents
             $table->text('title');
             $table->text('summary');
             $table->timestamps();

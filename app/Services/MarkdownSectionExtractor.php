@@ -6,6 +6,7 @@ use League\CommonMark\Extension\CommonMark\Node\Block\FencedCode;
 use League\CommonMark\Extension\CommonMark\Node\Block\Heading;
 use League\CommonMark\Extension\CommonMark\Node\Block\IndentedCode;
 use League\CommonMark\Extension\CommonMark\Node\Inline\Code;
+use League\CommonMark\Node\Block\AbstractBlock;
 use League\CommonMark\Node\Block\HtmlBlock;
 use League\CommonMark\Node\Inline\HtmlInline;
 use League\CommonMark\Node\Inline\Text;
@@ -79,14 +80,23 @@ class MarkdownSectionExtractor
     public static function merge(array $allSections): array
     {
         $merged = [];
-        $pendingTitles = [];
+        $current = null;
 
         foreach ($allSections as $section) {
-            foreach ($section as $index) {
-                if ($section[$index]['heading'] == 2) {
-
+            if ($section['level'] == 2) {
+                if ($current !== null) {
+                    $merged[] = $current;
                 }
+                $current = $section;
+            } elseif ($current !== null) {
+                $current['content'] .= $section['content'];
+            } else {
+                $current = $section;
             }
+        }
+
+        if ($current !== null) {
+            $merged[] = $current;
         }
 
         return $merged;
