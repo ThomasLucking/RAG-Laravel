@@ -8,6 +8,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Document extends Model
 {
+    protected $fillable = [
+        'title',
+        'summary',
+        'source_path',
+    ];
+
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class, 'document_tags');
