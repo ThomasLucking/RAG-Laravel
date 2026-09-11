@@ -1,4 +1,3 @@
-
 ## Running one computer inside another
 
 A virtual machine is a full operating system running inside another
