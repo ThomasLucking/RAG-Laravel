@@ -2,8 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Enums\DocumentOrigin;
 use App\Models\Document;
-use App\Models\Tag;
+use App\Services\DocumentIndexer;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -11,28 +12,35 @@ use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
 #[Signature('app:ingest-corpus')]
-#[Description('Command description')]
+#[Description('Import the docs/data corpus seed into Documents, skipping slugs that already exist (including soft-deleted ones).')]
 class IngestCorpus extends Command
 {
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(DocumentIndexer $documentIndexer): void
     {
-
         $directory = 'docs/data';
 
         $items = glob(base_path($directory).'/*.md');
 
         $created = 0;
-        $updated = 0;
         $skipped = 0;
 
         foreach ($items as $item) {
             if (! is_file($item)) {
                 continue;
             }
-            $raw = file_get_contents($item);
+
+            $slug = pathinfo($item, PATHINFO_FILENAME);
+
+            if (Document::withTrashed()->where('slug', $slug)->exists()) {
+                $skipped++;
+
+                continue;
+            }
+
+            $raw = str_replace("\r\n", "\n", file_get_contents($item));
 
             if (! preg_match('/^---\n(.*?)\n---\n?(.*)$/s', $raw, $m)) { // split into front matter ($m[1]) and body ($m[2])
                 $this->error("Skipping {$item}: missing or malformed front matter delimiters");
@@ -49,38 +57,37 @@ class IngestCorpus extends Command
 
                 continue;
             }
+
             if (empty($frontmatter['title']) || empty($frontmatter['summary'])) { // require both fields present
                 $this->error("Skipping {$item}: missing required 'title' or 'summary' in front matter");
                 $skipped++;
 
                 continue;
             }
-            // will be split and stored as text fragments later.
-            $markdown = trim($m[2]); // the pure markdown
 
-            $storedDocument = Document::updateOrCreate(
-                ['source_path' => basename($item)],
-                [
-                    'title' => $frontmatter['title'],
-                    'summary' => $frontmatter['summary'],
-                ]
-            );
-
-            $storedDocument->wasRecentlyCreated ? $created++ : $updated++;
+            $markdown = trim($m[2]); // the pure markdown, split and stored as chunks by the indexing job
 
             $tagNames = $frontmatter['tags'] ?? [];
 
             if (is_string($tagNames)) {
                 $tagNames = array_map('trim', explode(',', $tagNames));
             }
-            $tagIds = collect($tagNames)->map(function ($tagName) { // iterate each tag name since it's now an array.
-                return Tag::firstOrCreate(['title' => $tagName])->id; // find or create the Tag, collect its id
-            });
 
-            $storedDocument->tags()->sync($tagIds); // attach exactly these tag ids, detaching any not listed
+            $document = new Document;
+            $document->slug = $slug;
+            $document->source_path = basename($item);
+
+            $documentIndexer->save($document, [
+                'title' => $frontmatter['title'],
+                'summary' => $frontmatter['summary'],
+                'content' => $markdown,
+                'updated' => $frontmatter['updated'] ?? now()->toDateString(),
+                'tags' => $tagNames,
+            ], DocumentOrigin::Imported);
+
+            $created++;
         }
 
-        $this->info("Import complete: {$created} created, {$updated} updated, {$skipped} skipped.");
-
+        $this->info("Import complete: {$created} created, {$skipped} skipped.");
     }
 }

@@ -4,14 +4,19 @@
         <div class="flex-1 p-8 overflow-y-auto">
             <div class="flex items-start justify-between mb-6">
                 <div>
-                    <h2 id="modal-title-display" class="text-lg font-semibold text-[#E4E7EB]"></h2>
-                    <p class="mt-1 text-sm text-[#838E9C]">Document details.</p>
+                    <div class="flex items-center gap-2">
+                        <h2 id="modal-title-display" class="text-lg font-semibold text-[#E4E7EB]"></h2>
+                    </div>
+                    <p class="mt-1 text-sm text-[#838E9C]">
+                        Document details ·
+                        <span id="modal-origin-display" class="text-[#7C93B3]"></span>
+                    </p>
                 </div>
                 <button type="button" id="modal-close" class="text-[#838E9C] hover:text-[#E4E7EB] text-xl leading-none">&times;</button>
             </div>
 
             <div id="modal-error" class="hidden mb-4 rounded-md border border-[#6B2E2E] bg-[#241212] px-3 py-2 text-sm text-[#F06B6B]"></div>
-            <div id="modal-success" class="hidden mb-4 rounded-md border border-[#2E6B4A] bg-[#12241C] px-3 py-2 text-sm text-[#6BC79A]">Saved and re-ingested.</div>
+            <div id="modal-success" class="hidden mb-4 rounded-md border border-[#2E6B4A] bg-[#12241C] px-3 py-2 text-sm text-[#6BC79A]">Saved. Re-indexing in the background.</div>
 
             <form id="modal-form" class="space-y-6">
                 <div>
@@ -59,6 +64,10 @@
                     <button type="submit" id="modal-save" disabled
                         class="hidden flex-1 bg-[#3C82C4] text-[#0B0E12] text-sm font-medium rounded-md py-2.5 hover:bg-[#5A9AD6] active:bg-[#2E6BA8] transition-colors disabled:opacity-60">
                         Save
+                    </button>
+                    <button type="button" id="modal-delete"
+                        class="shrink-0 px-4 bg-[#241212] text-[#F06B6B] text-sm font-medium rounded-md py-2.5 border border-[#6B2E2E] hover:bg-[#2E1616] transition-colors">
+                        Delete
                     </button>
                 </div>
             </form>
