@@ -54,3 +54,9 @@ to parse the markdown for to ingest the corpus, I was also thinking of using an 
 todo list:
   add 1 index for the embedding column
   add 1 index for the tsvector to the column
+
+
+okay so for the embeddings I decided to chunk by headings on level 2 and the level 3 are stored within the same chunk. since I think level 2 headings are more consistent than heading 3's, I can't seem to fine an algorithm of a smart way to store both of them that would make logical sense.
+
+within my markdownSectionExtractor there are 2 methods, one for parsing and walking the tree basically iterating through each heading content etc.. then cutting them into chunks properly.
+
