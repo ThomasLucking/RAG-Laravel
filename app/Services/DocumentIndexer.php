@@ -17,6 +17,7 @@ class DocumentIndexer
      */
     public function save(Document $document, array $data, ?DocumentOrigin $origin = null): Document
     {
+        // basically resource decouples the apu out from the db columns and schema changes wont break the response shape
         return DB::transaction(function () use ($document, $data, $origin) {
             if (! $document->exists) {
                 $document->slug ??= Str::slug($data['title']);
