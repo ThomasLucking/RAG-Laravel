@@ -6,7 +6,6 @@ use League\CommonMark\Extension\CommonMark\Node\Block\FencedCode;
 use League\CommonMark\Extension\CommonMark\Node\Block\Heading;
 use League\CommonMark\Extension\CommonMark\Node\Block\IndentedCode;
 use League\CommonMark\Extension\CommonMark\Node\Inline\Code;
-use League\CommonMark\Node\Block\AbstractBlock;
 use League\CommonMark\Node\Block\HtmlBlock;
 use League\CommonMark\Node\Inline\HtmlInline;
 use League\CommonMark\Node\Inline\Text;

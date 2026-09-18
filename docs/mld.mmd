@@ -1,36 +1,53 @@
 erDiagram
-    %% the documents table is to store the original documents
+    %% the documents table is the single source of truth for a document (ADR 0001)
+    %% slug is fixed at creation and unique across live and soft-deleted rows
+    %% origin: 'imported' = from the docs/data corpus seed, 'manual' = created in the workshop
+    %% source_path is the original seed filename (null for manual documents)
+    %% deleted_at = soft delete, the row stays as a tombstone so the seed never re-imports its slug
     documents {
         bigint id PK
+        varchar(255) slug UK
         text title
         text summary
+        text content "nullable, markdown body"
+        date updated_on "nullable"
+        varchar(255) source_path "nullable"
+        varchar(255) origin "default 'imported'"
+        timestamp created_at "nullable"
+        timestamp updated_at "nullable"
+        timestamp deleted_at "nullable"
     }
+
     %% then the table has a many to many relationship so we need a join table to store the relationships between documents and tags
     tags {
         bigint id PK
         varchar(200) title
-        timestamp updated_at
+        timestamp created_at "nullable"
+        timestamp updated_at "nullable"
     }
 
+    %% (document_id, tag_id) is unique, both foreign keys cascade on delete
     document_tags {
-        bigint documents_id FK
-        bigint tags_id FK
+        bigint document_id FK
+        bigint tag_id FK
+        timestamp created_at "nullable"
+        timestamp updated_at "nullable"
     }
 
-    %% then there's a table to store the chunks of the documents, 
-    %% when we transform the raw data into embeddings, we will store the embeddings in this table as well
-    %% when we transform the raw data into tsvector, we will store the tsvector in this table as well
+    %% then there's a table to store the chunks of the documents
+    %% embeddings is nullable until the embedding model fills it
+    %% search_vector is a stored generated column: to_tsvector('english', chunk_content)
     chunks {
         bigint id PK
-        bigint documents_id FK
+        bigint document_id FK
         text headers
         text chunk_content
-        vector embeddings
-        tsvector chunks
+        vector(768) embeddings "nullable"
+        tsvector search_vector "generated, stored"
+        timestamp created_at "nullable"
+        timestamp updated_at "nullable"
     }
 
     documents ||--o{ document_tags : "has"
     tags ||--o{ document_tags : "has"
     documents ||--o{ chunks : "splits into"
-
-    
