@@ -42,11 +42,17 @@ class DocumentRequest extends FormRequest
                 'string',
                 'max:255',
                 function (string $attribute, mixed $value, \Closure $fail): void {
-                    if (! $this->isMethod('post')) {
+                    $slug = Str::slug((string) $value);
+
+                    if ($slug === '') {
+                        $fail('The title must contain at least one letter or number.');
+
                         return;
                     }
 
-                    $slug = Str::slug((string) $value);
+                    if (! $this->isMethod('post')) {
+                        return;
+                    }
 
                     if (Document::withTrashed()->where('slug', $slug)->exists()) {
                         $fail('A document (possibly deleted) already uses this title.');
@@ -55,7 +61,7 @@ class DocumentRequest extends FormRequest
             ],
             'summary' => ['required', 'string'],
             'tags' => ['nullable', 'array'],
-            'tags.*' => ['string', 'distinct', 'max:255'],
+            'tags.*' => ['string', 'distinct', 'max:200'],
             'updated' => ['required', 'date'],
             'content' => ['required', 'string'],
         ];

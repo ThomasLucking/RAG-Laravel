@@ -47,6 +47,11 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Manual documents have no source_path and cannot be represented once
+        // the column is made non-nullable again, so they (including soft-deleted
+        // rows) must be removed before the constraint is restored.
+        DB::table('documents')->whereNull('source_path')->delete();
+
         Schema::table('documents', function (Blueprint $table) {
             $table->dropUnique(['slug']);
             $table->dropColumn(['slug', 'content', 'updated_on', 'deleted_at']);

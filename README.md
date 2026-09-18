@@ -106,7 +106,7 @@ Replace `ollama` with `localhost` when running these from your host machine inst
 
 ### 8. Verifying the setup
 
-- **Volume persistence:** pull a model, run `sail down` then `sailudo systemctl stop ollama && sudo systemctl disable ollama up -d`, and confirm `docker compose exec ollama ollama list` still shows it.
+- **Volume persistence:** pull a model, run `sail down` then `sail up -d`, and confirm `docker compose exec ollama ollama list` still shows it.
 - **App → Ollama connectivity:** from inside the app container, `curl http://ollama:11434` should respond with `Ollama is running`.
 - **App → Postgres connectivity:** confirm `DB_HOST=pgsql` (not `localhost`) in `.env`, matching the service name in `compose.yaml`.
 
