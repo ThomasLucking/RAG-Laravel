@@ -47,10 +47,6 @@ class IngestCorpus extends Command
 
             $document = Document::withTrashed()->where('slug', $slug)->first();
 
-            if ($document?->trashed()) { // slug has a unique index, so a trashed row must be restored, not left for a duplicate insert to collide with
-                $document->restore();
-            }
-
             $raw = str_replace("\r\n", "\n", file_get_contents($item));
 
             if (! preg_match('/^---\n(.*?)\n---\n?(.*)$/s', $raw, $m)) { // split into front matter ($m[1]) and body ($m[2])
@@ -92,6 +88,10 @@ class IngestCorpus extends Command
             $sections = MarkdownSectionExtractor::merge(MarkdownSectionExtractor::extract($parser, $markdown));
 
             DB::transaction(function () use ($documentIndexer, $document, $frontmatter, $markdown, $tagNames, $sections) {
+
+                if ($document->trashed()) { // slug is unique so restore any trashed row instead of inserting a duplicate; done after validation so a failed save doesn't leave stale chunks
+                    $document->restore();
+                }
 
                 // first save the document content and frontmatter inside of the documents table
                 $documentIndexer->save($document, [
