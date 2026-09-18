@@ -60,8 +60,6 @@ class MarkdownSectionExtractor
                 $text = $node->getLiteral();
 
                 if ($node instanceof FencedCode) {
-                    // Re-wrap in fence markers so the code block stays visually
-                    // separated from the surrounding prose in the stored chunk.
                     $text = "\n\n```{$node->getInfo()}\n{$text}```\n\n";
                 } elseif ($node instanceof IndentedCode) {
                     $text = "\n\n```\n{$text}```\n\n";
