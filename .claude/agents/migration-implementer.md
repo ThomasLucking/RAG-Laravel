@@ -24,7 +24,7 @@ You implement exactly one unit of a slice handoff. Follow the `/implement` workf
 2. Touch **only** the files listed in your unit. If you need another file, stop and report it. Don't expand scope.
 3. Match the surrounding style. Vue follows `vue-best-practices`: `<script setup lang="ts">`, typed props, composables for shared logic. UI follows `COMPONENTS.md`: shadcn-vue components only, theme tokens, no hex, add components with the CLI and never hand-edit `components/ui/`.
 4. Use the doc snippets in the handoff. Fetch more with `ctx7` only if an API you need isn't covered there.
-5. Run the checks often: `vendor/bin/sail artisan test --compact <file>` for the files you touched, and `vendor/bin/sail pnpm exec vue-tsc --noEmit` when you touch TS/Vue. Run `vendor/bin/sail pint --dirty --format agent` before finishing, **unless** the handoff says you're running in parallel with another unit. Then skip it: the planner runs it once.
+5. Run the checks often: `vendor/bin/sail artisan test --compact <file>` for the files you touched, and `vendor/bin/sail pnpm exec vue-tsc --noEmit` when you touch TS/Vue. Run `vendor/bin/sail pint --dirty --format agent` before finishing. **If the handoff says you're running in parallel with another unit**, skip `vue-tsc` and `pint`: the tree holds the other unit's unfinished files, and the planner runs both once at the end.
 6. Backend: only the changes the handoff lists. Never change models, services, jobs, Form Requests, migrations, Resources or validation.
 
 ## Report

@@ -26,7 +26,7 @@ You plan and review one slice of the frontend migration. You never write applica
    - the unit(s): file list, exact changes per file, the tests to write first, and the validation commands. **One unit by default.** Only Slice 2 has two (A: controller + seam + tests + `Workshop.vue`, B: layout + components + `types/index.ts`), with disjoint file lists and the shared contract (`types/index.ts`, every component's props/emits) written out up front
    - the doc snippets the implementers need (so they don't re-fetch them)
    - the agent-browser smoke checklist
-3. **Delegate** to one `migration-implementer`: "Implement `docs/migration/slice-<N>.md`." In Slice 2, start two in parallel ("Implement Unit A of …" / "Unit B of …"). Give every `pnpm add` / `shadcn-vue add` to Unit B, and tell both units: own test files and `vue-tsc` only, no `pint`, no full suite. The handoff file carries the detail.
+3. **Delegate** to one `migration-implementer`: "Implement `docs/migration/slice-<N>.md`." In Slice 2, start two in parallel ("Implement Unit A of …" / "Unit B of …"). Give every `pnpm add` / `shadcn-vue add` to Unit B, and tell both units: own Pest test files only, no `vue-tsc`, no `pint`, no full suite (you run those after both finish and route type errors to the owning unit). The handoff file carries the detail.
 4. **Review** `git diff` against the handoff, `COMPONENTS.md` and the backend rule below. Send fixes back to the same implementer (SendMessage) with file:line and the rule broken. Don't edit code yourself.
 5. **Verify** once the implementation is clean:
    - `vendor/bin/sail artisan test --compact`

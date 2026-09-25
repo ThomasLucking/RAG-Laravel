@@ -48,7 +48,7 @@ Why not two everywhere: each implementer pays the same startup cost (preloaded s
 
 - The planner writes the shared contract into the handoff **before** delegating: `types/index.ts` and every component's props/emits. Unit B owns `types/index.ts`, and Unit A imports it as specified.
 - All `shadcn-vue add` / `pnpm add` calls belong to **one** unit (B). If A needs a component, B adds it.
-- Parallel implementers run only their own test files and `vue-tsc`. They **don't** run `pint` or the full suite. The planner runs those once, after both finish.
+- Parallel implementers run only their own Pest test files. They **don't** run `vue-tsc`, `pint` or the full suite: the tree holds the other unit's unfinished files (and Unit A imports types Unit B may not have written yet), so those checks give misleading failures. The planner runs all three once, after both finish, and sends type errors back to the owning unit.
 
 ## Why this is cheap
 
