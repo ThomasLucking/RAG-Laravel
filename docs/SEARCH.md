@@ -8,13 +8,13 @@ Review findings: sampled 13 fragments across 11 docs — mostly clean, starts/en
 
 You can run `app/Console/Commands/TestMarkdownSectionExtractor.php` to test the extractor/merge/split logic.
 
-for the tsvectors, I chose for the ranking ts_rank_cs, and for the function I choose websearch_to_tsquery, since it takes a raw input as the query which is nicer.
+for the tsvectors, I chose for the ranking ts_rank_cd, and for the function I choose websearch_to_tsquery, since it takes a raw input as the query which is nicer.
 
-ts_rank_cs is similiar to ts_rank, which basically means it checks the count of how many query words are present and it ignores the position.
+ts_rank_cd is similiar to ts_rank, which basically means it checks the count of how many query words are present and it ignores the position.
 
-however ts_rank_cs, not only counts the words but it also includes the position of the vector and then decides which one is close.
+however ts_rank_cd, not only counts the words but it also includes the position of the vector and then decides which one is close.
 
-ts_rank_cs works in the following, it scores each other cover using the following formula
+ts_rank_cd works in the following, it scores each other cover using the following formula
 
 cover score = word weight / (1 + number of other words inside the cover)
 

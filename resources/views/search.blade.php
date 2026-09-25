@@ -25,17 +25,20 @@
 
                     <ul class="mt-3 space-y-3">
                         @forelse ($results as $chunk)
-                            <li class="rounded-xl border border-[#262D38] bg-[#12161C] p-4">
-                                <div class="flex items-start justify-between gap-3">
-                                    <div class="min-w-0">
-                                        <p class="truncate text-sm font-medium text-[#E4E7EB]">{{ $chunk->document?->title }}</p>
-                                        <p class="mt-0.5 truncate text-xs text-[#838E9C]">{{ $chunk->headers }}</p>
-                                    </div>
-                                    <span class="shrink-0 rounded-full bg-[#3C82C4]/15 px-2 py-0.5 text-[10px] font-medium text-[#5A9AD6]">
-                                        {{ number_format($chunk->rank, 3) }}
+                            <li>
+                                <button type="button" data-slug="{{ $chunk->document?->slug }}"
+                                    class="search-result block w-full text-left rounded-xl border border-[#262D38] bg-[#12161C] p-4 hover:border-[#3C82C4]/60 transition-colors">
+                                    <span class="flex items-start justify-between gap-3">
+                                        <span class="block min-w-0">
+                                            <span class="block truncate text-sm font-medium text-[#E4E7EB]">{{ $chunk->document?->title }}</span>
+                                            <span class="mt-0.5 block truncate text-xs text-[#838E9C]">{{ $chunk->headers }}</span>
+                                        </span>
+                                        <span class="shrink-0 rounded-full bg-[#3C82C4]/15 px-2 py-0.5 text-[10px] font-medium text-[#5A9AD6]">
+                                            {{ number_format($chunk->rank, 3) }}
+                                        </span>
                                     </span>
-                                </div>
-                                <p class="mt-3 text-sm leading-6 text-[#C3CAD3]">{{ Str::limit($chunk->chunk_content, 300) }}</p>
+                                    <span class="mt-3 block text-sm leading-6 text-[#C3CAD3]">{{ Str::limit($chunk->chunk_content, 300) }}</span>
+                                </button>
                             </li>
                         @empty
                             <li class="rounded-xl border border-dashed border-[#262D38] p-6 text-center text-sm text-[#4A5261]">
@@ -47,4 +50,7 @@
             </div>
         </main>
     </div>
+
+    <x-formulaire.ingest-modal />
+    <x-formulaire.document-modal />
 </x-layout>

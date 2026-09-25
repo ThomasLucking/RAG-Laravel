@@ -51,8 +51,8 @@ export function initDocumentModal() {
         currentSlug = null;
     }
 
-    document.getElementById('document-list').addEventListener('click', async (event) => {
-        const button = event.target.closest('.document-item');
+    document.addEventListener('click', async (event) => {
+        const button = event.target.closest('.document-item, .search-result');
         if (!button) return;
         const slug = button.dataset.slug;
         try {
