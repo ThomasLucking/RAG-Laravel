@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SearchRequest;
 use App\Models\Document;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class FullSearchTextController extends Controller
@@ -16,8 +16,10 @@ class FullSearchTextController extends Controller
         return view('search', compact('documents'));
     }
 
-    public function userQuery(Request $request): RedirectResponse
+    public function userQuery(SearchRequest $query): RedirectResponse
     {
+        $query->validated();
+
         return redirect()->back();
     }
 }
