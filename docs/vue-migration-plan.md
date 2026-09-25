@@ -122,7 +122,7 @@ No behaviour changes. Pin down current HTTP behaviour so later slices can refact
 
 - Complete the [Sail bootstrap](#one-time-bootstrap) first (`vendor/` is missing). Tests run against the Sail `pgsql` service, which is needed for full-text and vector search.
 - Feature tests, using factories:
-  - `GET /` and `GET /formulaire` redirect to `/documents`.
+  - `GET /` redirects to `/formulaire`, which redirects to `/documents`. `GET /formulaire` redirects to `/documents`.
   - `GET /documents` lists Documents ordered by title.
   - `POST /documents` (JSON) creates the Document and its tags and returns 201 with the resource. Invalid input returns 422 with field errors.
   - Creating a Document whose slug is taken by a live **or deleted** Document is rejected.
@@ -169,7 +169,7 @@ No visible change: both pages are still Blade.
 
 - Delete `resources/views/formulaire.blade.php`, `search.blade.php`, `components/`, `welcome.blade.php`, `resources/js/app.js`, `resources/js/formulaire/`.
 - Remove the `expectsJson()` branches, the JSON-only tests and `DocumentResource` if it is no longer used (the chat still uses `ChunkResource`).
-- Keep `/formulaire` → `/documents` as a redirect only.
+- Keep `/formulaire` → `/documents` as a redirect only. Point `/` straight at `/documents` and update the Slice 0 redirect test to match.
 - Mark ADR 0002 as fully applied.
 
 **Done when:** `grep -r formulaire resources app` only hits the redirect, all tests pass, `vue-tsc` and Pint are clean, and a full agent-browser smoke pass of Slices 2 and 3 succeeds.

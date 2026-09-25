@@ -160,14 +160,41 @@ Prefer these approaches in order:
 <Card class="mx-auto max-w-md">...</Card>
 ```
 
-### 3. Add a new variant
+### 3. Add a new variant (in a wrapper)
 
-Edit the component source to add a variant via `cva`:
+In this project `components/ui/` is CLI-owned (see `COMPONENTS.md`), so never edit it by hand. Define the extra variant in a wrapper outside `ui/` and forward everything else:
 
-```js
-// components/ui/Button.vue (or similar)
-warning: "bg-warning text-warning-foreground hover:bg-warning/90",
+```vue
+<!-- resources/js/components/AppButton.vue -->
+<script setup lang="ts">
+import { cva } from 'class-variance-authority'
+import { Button, type ButtonVariants } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+
+const props = defineProps<{
+  variant?: ButtonVariants['variant'] | 'warning'
+  size?: ButtonVariants['size']
+}>()
+
+const extraVariants = cva('', {
+  variants: {
+    variant: { warning: 'bg-warning text-warning-foreground hover:bg-warning/90' },
+  },
+})
+</script>
+
+<template>
+  <Button
+    :variant="props.variant === 'warning' ? 'default' : props.variant"
+    :size="props.size"
+    :class="cn(props.variant === 'warning' && extraVariants({ variant: 'warning' }))"
+  >
+    <slot />
+  </Button>
+</template>
 ```
+
+Use theme tokens only (define `--warning` in the CSS file first, as shown above). Upstream updates via `add --diff` stay clean because `ui/` is untouched.
 
 ### 4. Wrapper components
 

@@ -75,6 +75,10 @@ Accepts component names, registry-prefixed names (`@magicui/shimmer-button`), UR
 | `--all`         | `-a`  | Add all available components                                                                                         | `false` |
 | `--path <path>` | `-p`  | Target path for the component                                                                                        | —       |
 | `--silent`      | `-s`  | Mute output                                                                                                          | `false` |
+| `--css-variables` / `--no-css-variables` | — | Use (or don't use) CSS variables for theming                                                           | `true`  |
+| `--dry-run`     | —     | Preview changes without writing files                                                                                | `false` |
+| `--diff [path]` | —     | Show the upstream vs local diff for a file                                                                           | —       |
+| `--view [path]` | —     | Show a file's contents                                                                                               | —       |
 
 #### Smart Merge from Upstream
 

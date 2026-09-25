@@ -8,7 +8,7 @@ Every piece of UI is built from **shadcn-vue** components. The whole app should 
 2. **`components/ui/` is CLI-owned.** Never hand-edit files in `resources/js/components/ui/`. To customise, wrap the component in `resources/js/components/` (e.g. `DocumentDialog.vue` wraps `Dialog`).
 3. **No raw HTML controls.** No bare `<button>`, `<input>`, `<textarea>`, `<dialog>` or hand-rolled modals in pages or app components. Use `Button`, `Input`, `Textarea`, `Dialog`.
 4. **Theme tokens only.** Colours come from the shadcn neutral theme variables (`bg-background`, `text-muted-foreground`, `border-border`, `bg-primary`, …). No hex values, no `bg-[#…]`, no Tailwind palette colours (`bg-gray-900`, `text-blue-500`).
-5. **Variants, not classes.** Change a component's look through its `variant` / `size` props (`<Button variant="ghost" size="sm">`). Extra `class` is for layout only (spacing, width, flex/grid), never for colour, radius or typography overrides.
+5. **Variants, not classes.** Change a component's look through its `variant` / `size` props (`<Button variant="ghost" size="sm">`). Extra `class` is for layout only (spacing, width, flex/grid), never for colour, radius or typography overrides. If a genuinely new variant is needed, define it with `cva` in a wrapper in `resources/js/components/` using theme tokens, never inside `components/ui/`.
 6. **One way to do each thing:**
 
    | Need | Use |
