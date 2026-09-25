@@ -10,7 +10,8 @@
     </div>
 
     <div class="px-4 pb-6 pt-2">
-        <form id="chat-form" class="mx-auto w-full max-w-3xl">
+        <form action="{{ route('user.query') }}" method="POST" id="chat-form" class="mx-auto w-full max-w-3xl">
+            @csrf
             <div class="flex items-end gap-2 rounded-3xl border border-[#262D38] bg-[#12161C] pl-5 pr-2 py-2 shadow-lg shadow-black/30 focus-within:border-[#3C82C4]/60 transition-colors">
                 <textarea id="chat-input" name="query" rows="1"
                     placeholder="Ask anything about your documents"

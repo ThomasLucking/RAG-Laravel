@@ -12,6 +12,7 @@ class EmbeddingService
         $provider = config('ai.default_for_embeddings');
 
         return Embeddings::for([$chunk])
+            ->cache()
             ->dimensions(config("ai.providers.{$provider}.models.embeddings.dimensions"))
             ->generate($provider, config("ai.providers.{$provider}.models.embeddings.default"));
     }

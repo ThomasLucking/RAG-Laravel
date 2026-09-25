@@ -3,10 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\DocumentRequest;
+use App\Http\Requests\UserQueryRequest;
+use App\Http\Resources\ChunkResource;
 use App\Http\Resources\DocumentResource;
+use App\Models\Chunk;
 use App\Models\Document;
 use App\Services\DocumentIndexer;
+use App\Services\EmbeddingService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
 
@@ -47,5 +52,26 @@ class DocumentController extends Controller
         $this->documentIndexer->delete($document);
 
         return response()->noContent();
+    }
+
+    public function query(UserQueryRequest $request): AnonymousResourceCollection|JsonResponse
+    {
+        $queryEmbedding = EmbeddingService::embeddding($request->validated('query'))->first();
+
+        $similiarFragments = Chunk::query()
+            ->with('document:id,slug,title')
+            ->select('chunks.*')
+            ->selectVectorDistance('embeddings', $queryEmbedding, as: 'distance')
+            ->whereVectorSimilarTo('embeddings', $queryEmbedding, minSimilarity: config('search.min_similarity'))
+            ->limit(10)
+            ->get();
+
+        if ($similiarFragments->isEmpty()) {
+            return response()->json([
+                'message' => 'no relevant document found for your quest',
+            ]);
+        }
+
+        return ChunkResource::collection($similiarFragments);
     }
 }
