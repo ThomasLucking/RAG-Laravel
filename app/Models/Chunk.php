@@ -13,6 +13,7 @@ class Chunk extends Model
         'headers',
         'chunk_content',
         'embeddings',
+        'search_vector',
     ];
 
     /**
