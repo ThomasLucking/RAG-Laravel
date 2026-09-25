@@ -10,6 +10,7 @@ class FullSearchTextController extends Controller
 {
     public function index(SearchRequest $request): View
     {
+        // load only the documents only for the matching fragment
         $results = $request->filled('query')
             ? Chunk::fullTextSearch($request->validated('query'))->with('document:id,slug,title,origin')->get()
             : collect();
