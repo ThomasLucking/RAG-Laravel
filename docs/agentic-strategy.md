@@ -76,7 +76,7 @@ Run each slice on its own branch in the **main checkout**. Don't use `isolation:
 - Tests, `vue-tsc`, the build and the agent-browser smoke pass need one running app that has all the slice's changes.
 - Don't edit files by hand while a slice is running.
 
-Exception: if you want to keep working on something else in this repo while a slice runs, put *that other work* in a worktree with its own `APP_PORT`, `VITE_PORT` and `FORWARD_DB_PORT` in `.env`, and run `sail composer install` + `sail pnpm install` there.
+Exception: if you want to keep working on something else in this repo while a slice runs, put *that other work* in a worktree with its own `APP_PORT`, `VITE_PORT`, `FORWARD_DB_PORT` and `FORWARD_OLLAMA_PORT` in `.env` (every host port `compose.yaml` publishes), and run `vendor/bin/sail composer install` + `vendor/bin/sail pnpm install` there.
 
 ## Running a slice
 

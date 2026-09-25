@@ -13,12 +13,20 @@ Start here. Run one slice at a time, in order: **0 → 1 → 2 → 3 → 4**.
 
 1. Merge PR #21 (`user_query/embedding`) into `main`.
 2. Get the planning docs onto `main`: open a PR from `migratation/from-blade-to-vue` (docs, agents, skills only) and merge it.
-3. Complete the Sail bootstrap in the plan ([Environment (Sail)](docs/vue-migration-plan.md#environment-sail)):
+3. Install the skills the migration agents preload. They aren't committed (`.claude/skills/` is ignored), and a missing skill is silently skipped:
    ```shell
-   composer install --ignore-platform-reqs     # once, only to create vendor/
+   npx skills add vuejs-ai/skills@vue-best-practices -g -y
+   npx skills add unovue/shadcn-vue@shadcn-vue -g -y
+   npx skills add mattpocock/skills@tdd -g -y
+   ls ~/.claude/skills | grep -E '^(vue-best-practices|shadcn-vue|tdd)$'   # all 3 must be listed
+   ```
+   The upstream `shadcn-vue` skill says to add variants by editing `components/ui/`. `COMPONENTS.md` overrides this: new variants go in a wrapper.
+4. Complete the Sail bootstrap in the plan ([Environment (Sail)](docs/vue-migration-plan.md#environment-sail)):
+   ```shell
+   composer install --ignore-platform-reqs --no-scripts   # once, only to create vendor/ (no artisan on host PHP)
    # .env: APP_PORT=8000, DB_HOST=pgsql
-   sail up -d && sail composer install && sail pnpm install && sail artisan migrate
-   sail artisan test --compact                  # baseline must be green
+   vendor/bin/sail up -d && vendor/bin/sail composer install && vendor/bin/sail pnpm install && vendor/bin/sail artisan migrate
+   vendor/bin/sail artisan test --compact                  # baseline must be green
    ```
 
 ## 2. Per slice
@@ -26,7 +34,7 @@ Start here. Run one slice at a time, in order: **0 → 1 → 2 → 3 → 4**.
 ```shell
 git switch main && git pull
 git switch -c migration/slice-<N>
-sail up -d
+vendor/bin/sail up -d
 ```
 
 No worktree. Stay in the main checkout, and don't edit files while the agents run (see [strategy](docs/agentic-strategy.md#worktrees-no)).

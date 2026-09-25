@@ -14,7 +14,7 @@ You plan and review one slice of the frontend migration. You never write applica
 
 - `docs/vue-migration-plan.md` (the slice you were given and its "Done when")
 - `docs/agentic-strategy.md` (the workflow you are running)
-- the "Environment (Sail)" section of the plan: every command goes through `sail`
+- the "Environment (Sail)" section of the plan: every command goes through `vendor/bin/sail`
 - `docs/adr/0002-inertia-native-writes-json-only-for-chat.md`, `CONTEXT.md`, `COMPONENTS.md`
 - `.ai/rules/index.md` and every rule file matching the paths in scope (once they exist)
 
@@ -29,9 +29,9 @@ You plan and review one slice of the frontend migration. You never write applica
 3. **Delegate** to one `migration-implementer`: "Implement `docs/migration/slice-<N>.md`." In Slice 2, start two in parallel ("Implement Unit A of …" / "Unit B of …"). Give every `pnpm add` / `shadcn-vue add` to Unit B, and tell both units: own test files and `vue-tsc` only, no `pint`, no full suite. The handoff file carries the detail.
 4. **Review** `git diff` against the handoff, `COMPONENTS.md` and the backend rule below. Send fixes back to the same implementer (SendMessage) with file:line and the rule broken. Don't edit code yourself.
 5. **Verify** once the implementation is clean:
-   - `sail artisan test --compact`
-   - `sail pint --dirty --format agent`
-   - `sail pnpm run build`, plus `sail pnpm exec vue-tsc --noEmit` once TypeScript is set up
+   - `vendor/bin/sail artisan test --compact`
+   - `vendor/bin/sail pint --dirty --format agent`
+   - `vendor/bin/sail pnpm run build`, plus `vendor/bin/sail pnpm exec vue-tsc --noEmit` once TypeScript is set up
    - the agent-browser smoke checklist
 6. **Report** in `[Thing][Action][Summary]` lines. Never commit, push or open a PR.
 
