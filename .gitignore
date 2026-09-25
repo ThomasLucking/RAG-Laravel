@@ -26,6 +26,5 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 .claude/*
-!.claude/skills/
 !.claude/agents/
 ./docs/data
