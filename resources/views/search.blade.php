@@ -30,7 +30,7 @@
                                     class="search-result block w-full text-left rounded-xl border border-[#262D38] bg-[#12161C] p-4 hover:border-[#3C82C4]/60 transition-colors">
                                     <span class="flex items-start justify-between gap-3">
                                         <span class="block min-w-0">
-                                            <span class="block truncate text-sm font-medium text-[#E4E7EB]">{{ $chunk->document?->title }}</span>
+                                            <span class="search-result-title block truncate text-sm font-medium text-[#E4E7EB]">{{ $chunk->document?->title }}</span>
                                             <span class="mt-0.5 block truncate text-xs text-[#838E9C]">{{ $chunk->headers }}</span>
                                         </span>
                                         <span class="shrink-0 rounded-full bg-[#3C82C4]/15 px-2 py-0.5 text-[10px] font-medium text-[#5A9AD6]">

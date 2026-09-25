@@ -85,3 +85,22 @@ proximity search is where two or more separately matching term occurence are wit
 
 in full text search you can set weights to ts_vector like A B C and D, this can be used for to mark entries coming from different parts of a document.
 
+
+a GIN index is basically an inverted index, which means it flops the relationship it maps value -> list of rows containing it.
+
+An inverted index flips the relationship: it maps value → list of rows containing it.
+
+"postgres"  → [doc 3, doc 7, doc 12]
+"index"     → [doc 7, doc 9]
+"vector"    → [doc 2, doc 7]
+
+then the index flips, it
+
+app     → [3]
+fast    → [1, 3]
+index   → [1]
+laravel → [2, 3]
+postgr  → [1, 2]
+talk    → [2]
+
+the words[keys] are sorted in a b-tree so they can be found fats and each key points to list of row id's (posting list)
