@@ -4,7 +4,7 @@ Every piece of UI is built from **shadcn-vue** components. The whole app should 
 
 ## Rules
 
-1. **shadcn first.** Before writing markup, check whether a shadcn-vue component covers it (`Button`, `Input`, `Textarea`, `Label`, `Dialog`, `AlertDialog`, `Badge`, `Card`, `ScrollArea`, `Separator`, `Sidebar`, `Skeleton`, `Tooltip`, …). If it exists, use it. If it isn't installed yet, add it with the CLI: `pnpm dlx shadcn-vue@latest add <name>`.
+1. **shadcn first.** Before writing markup, check whether a shadcn-vue component covers it (`Button`, `Input`, `Textarea`, `Label`, `Dialog`, `AlertDialog`, `Badge`, `Card`, `ScrollArea`, `Separator`, `Sidebar`, `Skeleton`, `Tooltip`, …). If it exists, use it. If it isn't installed yet, add it with the CLI: `sail pnpm dlx shadcn-vue@latest add <name>`.
 2. **`components/ui/` is CLI-owned.** Never hand-edit files in `resources/js/components/ui/`. To customise, wrap the component in `resources/js/components/` (e.g. `DocumentDialog.vue` wraps `Dialog`).
 3. **No raw HTML controls.** No bare `<button>`, `<input>`, `<textarea>`, `<dialog>` or hand-rolled modals in pages or app components. Use `Button`, `Input`, `Textarea`, `Dialog`.
 4. **Theme tokens only.** Colours come from the shadcn neutral theme variables (`bg-background`, `text-muted-foreground`, `border-border`, `bg-primary`, …). No hex values, no `bg-[#…]`, no Tailwind palette colours (`bg-gray-900`, `text-blue-500`).

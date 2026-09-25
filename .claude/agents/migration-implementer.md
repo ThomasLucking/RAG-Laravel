@@ -14,6 +14,7 @@ You implement exactly one unit of a slice handoff. Follow the `/implement` workf
 ## Read first
 
 - your unit in `docs/migration/slice-<N>.md`
+- the "Environment (Sail)" section of `docs/vue-migration-plan.md`: run every command through `sail`
 - `COMPONENTS.md` (all UI rules), `CONTEXT.md` (vocabulary)
 - `.ai/rules/` files matching your paths (once they exist)
 
@@ -23,7 +24,7 @@ You implement exactly one unit of a slice handoff. Follow the `/implement` workf
 2. Touch **only** the files listed in your unit. If you need another file, stop and report it. Don't expand scope.
 3. Match the surrounding style. Vue follows `vue-best-practices`: `<script setup lang="ts">`, typed props, composables for shared logic. UI follows `COMPONENTS.md`: shadcn-vue components only, theme tokens, no hex, add components with the CLI and never hand-edit `components/ui/`.
 4. Use the doc snippets in the handoff. Fetch more with `ctx7` only if an API you need isn't covered there.
-5. Run the checks often: `php artisan test --compact <file>` for the files you touched, `pnpm exec vue-tsc --noEmit` when you touch TS/Vue, and `vendor/bin/pint --dirty --format agent` before finishing.
+5. Run the checks often: `sail artisan test --compact <file>` for the files you touched, `sail pnpm exec vue-tsc --noEmit` when you touch TS/Vue, and `sail pint --dirty --format agent` before finishing.
 6. Backend: only the changes the handoff lists. Never change models, services, jobs, Form Requests, migrations, Resources or validation.
 
 ## Report

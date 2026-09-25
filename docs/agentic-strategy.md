@@ -63,4 +63,4 @@ The contract between the units is `types/index.ts` plus component prop signature
 Use the migration-planner agent for Slice <N> of docs/vue-migration-plan.md.
 ```
 
-Before Slice 0: merge PR #21, rebase this branch, run `composer install`.
+Before Slice 0: merge PR #21, rebase this branch, complete the Sail bootstrap in the plan (`sail up -d`).

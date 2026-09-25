@@ -14,6 +14,7 @@ You plan and review one slice of the frontend migration. You never write applica
 
 - `docs/vue-migration-plan.md` (the slice you were given and its "Done when")
 - `docs/agentic-strategy.md` (the workflow you are running)
+- the "Environment (Sail)" section of the plan: every command goes through `sail`
 - `docs/adr/0002-inertia-native-writes-json-only-for-chat.md`, `CONTEXT.md`, `COMPONENTS.md`
 - `.ai/rules/index.md` and every rule file matching the paths in scope (once they exist)
 
@@ -29,9 +30,9 @@ You plan and review one slice of the frontend migration. You never write applica
 3. **Delegate** each unit to a `migration-implementer` in parallel. The prompt is short: "Implement Unit A of `docs/migration/slice-<N>.md`." The handoff file carries the detail.
 4. **Review** `git diff` against the handoff, `COMPONENTS.md` and the backend rule below. Send fixes back to the same implementer (SendMessage) with file:line and the rule broken. Don't edit code yourself.
 5. **Verify** once both units are clean:
-   - `php artisan test --compact`
-   - `vendor/bin/pint --dirty --format agent`
-   - `pnpm run build`, plus `pnpm exec vue-tsc --noEmit` once TypeScript is set up
+   - `sail artisan test --compact`
+   - `sail pint --dirty --format agent`
+   - `sail pnpm run build`, plus `sail pnpm exec vue-tsc --noEmit` once TypeScript is set up
    - the agent-browser smoke checklist
 6. **Report** in `[Thing][Action][Summary]` lines. Never commit, push or open a PR.
 
