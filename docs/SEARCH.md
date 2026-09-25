@@ -7,3 +7,18 @@ Review findings: sampled 13 fragments across 11 docs — mostly clean, starts/en
 - Two junk test files (`dawd.md`, `dwadaw.md`) were sitting in the real corpus and produced garbage chunks (577, 585). Deleted both files and force-deleted their `Document`/`Chunk` rows, then re-ran the ingest. Corpus is now 38 real documents, 131 chunks.
 
 You can run `app/Console/Commands/TestMarkdownSectionExtractor.php` to test the extractor/merge/split logic.
+
+for the tsvectors, I chose for the ranking ts_rank_cs, and for the function I choose websearch_to_tsquery, since it takes a raw input as the query which is nicer.
+
+ts_rank_cs is similiar to ts_rank, which basically means it checks the count of how many query words are present and it ignores the position.
+
+however ts_rank_cs, not only counts the words but it also includes the position of the vector and then decides which one is close.
+
+ts_rank_cs works in the following, it scores each other cover using the following formula
+
+cover score = word weight / (1 + number of other words inside the cover)
+
+the word weight is what we choose like weight, otherwise the default weight D.
+
+and the ranking is then eventually chosen base on everything.
+

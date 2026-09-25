@@ -3,23 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SearchRequest;
+use App\Models\Chunk;
 use App\Models\Document;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class FullSearchTextController extends Controller
 {
-    public function index(): View
+    public function index(SearchRequest $request): View
     {
         $documents = Document::query()->orderBy('title')->get(['slug', 'title', 'origin']);
 
-        return view('search', compact('documents'));
+        $results = $request->filled('query')
+            ? Chunk::fullTextSearch($request->validated('query'))->with('document')->get()
+            : collect();
+
+        return view('search', compact('documents', 'results'));
     }
 
-    public function userQuery(SearchRequest $query): RedirectResponse
-    {
-        $query->validated();
-
-        return redirect()->back();
-    }
+    
 }
