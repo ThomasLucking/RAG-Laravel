@@ -3,15 +3,19 @@
 namespace App\Services;
 
 use App\Enums\DocumentOrigin;
+use App\Jobs\EmbedDocumentChunks;
 use App\Models\Document;
 use App\Models\Tag;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use League\CommonMark\Environment\Environment;
+use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
+use League\CommonMark\Parser\MarkdownParser;
 
 class DocumentIndexer
 {
     /**
-     * Save a Document and sync its tags from validated input.
+     * Save a Document, sync its tags and rebuild its chunks from validated input.
      *
      * @param  array{title: string, summary: string, content: string, updated: string, tags?: list<string>}  $data
      */
@@ -35,8 +39,35 @@ class DocumentIndexer
 
             $document->tags()->sync($tagIds);
 
+            $this->rebuildChunks($document);
+
+            // afterCommit so the worker never runs before the new chunks are visible
+            EmbedDocumentChunks::dispatch($document)->afterCommit();
+
             return $document;
         });
+    }
+
+    /**
+     * Replace a Document's chunks with one chunk per H2 section of its content, so re-saving never piles up duplicates.
+     */
+    private function rebuildChunks(Document $document): void
+    {
+        $environment = new Environment;
+        $environment->addExtension(new CommonMarkCoreExtension);
+
+        $sections = MarkdownSectionExtractor::merge(
+            MarkdownSectionExtractor::extract(new MarkdownParser($environment), $document->content)
+        );
+
+        $document->chunks()->delete();
+
+        foreach ($sections as $section) {
+            $document->chunks()->create([
+                'headers' => $section['heading'],
+                'chunk_content' => $section['content'],
+            ]);
+        }
     }
 
     /**

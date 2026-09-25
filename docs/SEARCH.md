@@ -7,3 +7,6 @@ Review findings: sampled 13 fragments across 11 docs — mostly clean, starts/en
 - Two junk test files (`dawd.md`, `dwadaw.md`) were sitting in the real corpus and produced garbage chunks (577, 585). Deleted both files and force-deleted their `Document`/`Chunk` rows, then re-ran the ingest. Corpus is now 38 real documents, 131 chunks.
 
 You can run `app/Console/Commands/TestMarkdownSectionExtractor.php` to test the extractor/merge/split logic.
+
+
+Re-embedding timing: a full re-embedding of the corpus (131 chunks, all `embeddings` set to null, then `php artisan app:store-embeddings`) takes ~20.6 s on my machine (~157 ms per chunk). Setup: AMD Ryzen 5 8540U (12 threads, 14 GiB RAM), Ollama in Docker via Sail running `nomic-embed-text` (768 dims) on CPU only, model already loaded. Chunks are embedded one request at a time, so batching them into a single `Embeddings::for([...])` call is the obvious lever if this grows.

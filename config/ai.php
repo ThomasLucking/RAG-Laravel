@@ -17,7 +17,7 @@ return [
     'default_for_images' => 'gemini',
     'default_for_audio' => 'openai',
     'default_for_transcription' => 'openai',
-    'default_for_embeddings' => 'openai',
+    'default_for_embeddings' => env('AI_EMBEDDINGS_PROVIDER', 'ollama'),
     'default_for_reranking' => 'cohere',
 
     /*
@@ -126,8 +126,8 @@ return [
             'url' => env('OLLAMA_URL', 'http://localhost:11434'),
             'models' => [
                 'embeddings' => [
-                    'default' => 'nomic-embed-text',
-                    'dimensions' => 768,
+                    'default' => env('OLLAMA_EMBEDDING_MODEL', 'nomic-embed-text'),
+                    'dimensions' => (int) env('OLLAMA_EMBEDDING_DIMENSIONS', 768),
                 ],
             ],
         ],
