@@ -57,10 +57,17 @@ The contract between the units is `types/index.ts` plus component prop signature
 - **No agent commits, pushes or opens PRs.** You do that per slice.
 - **Slice 0 goes first.** Its tests are the safety net every later slice must keep green.
 
+## Worktrees: no
+
+Run each slice on its own branch in the **main checkout**. Don't use `isolation: "worktree"` and don't create worktrees by hand.
+
+- Sail is set up per folder: a worktree needs its own `vendor/`, `node_modules/`, containers and database, and would compete for ports 8000 / 5173 / 5432.
+- The two implementers already work on disjoint files, so they can't conflict in one working tree.
+- Tests, `vue-tsc`, the build and the agent-browser smoke pass need one running app that has both units' changes.
+- Don't edit files by hand while a slice is running.
+
+Exception: if you want to keep working on something else in this repo while a slice runs, put *that other work* in a worktree with its own `APP_PORT`, `VITE_PORT` and `FORWARD_DB_PORT` in `.env`, and run `sail composer install` + `sail pnpm install` there.
+
 ## Running a slice
 
-```
-Use the migration-planner agent for Slice <N> of docs/vue-migration-plan.md.
-```
-
-Before Slice 0: merge PR #21, rebase this branch, complete the Sail bootstrap in the plan (`sail up -d`).
+See [ENTRYPOINT.md](../ENTRYPOINT.md) for the exact steps and prompt.
