@@ -5,14 +5,10 @@ namespace App\Console\Commands;
 use App\Enums\DocumentOrigin;
 use App\Models\Document;
 use App\Services\DocumentIndexer;
-use App\Services\MarkdownSectionExtractor;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use League\CommonMark\Environment\Environment;
-use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
-use League\CommonMark\Parser\MarkdownParser;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -27,10 +23,6 @@ class IngestCorpus extends Command
      */
     public function handle(DocumentIndexer $documentIndexer): void
     {
-        $environment = new Environment;
-        $environment->addExtension(new CommonMarkCoreExtension);
-        $parser = new MarkdownParser($environment);
-
         $directory = 'docs/data';
 
         $items = glob(base_path($directory).'/*.md');
@@ -85,15 +77,13 @@ class IngestCorpus extends Command
             $document->slug = $slug;
             $document->source_path = basename($item);
 
-            $sections = MarkdownSectionExtractor::merge(MarkdownSectionExtractor::extract($parser, $markdown));
-
-            DB::transaction(function () use ($documentIndexer, $document, $frontmatter, $markdown, $tagNames, $sections) {
+            DB::transaction(function () use ($documentIndexer, $document, $frontmatter, $markdown, $tagNames) {
 
                 if ($document->trashed()) { // slug is unique so restore any trashed row instead of inserting a duplicate; done after validation so a failed save doesn't leave stale chunks
                     $document->restore();
                 }
 
-                // first save the document content and frontmatter inside of the documents table
+                // save the document content and frontmatter; the indexer also rebuilds its chunks
                 $documentIndexer->save($document, [
                     'title' => $frontmatter['title'],
                     'summary' => $frontmatter['summary'],
@@ -101,17 +91,6 @@ class IngestCorpus extends Command
                     'updated' => $frontmatter['updated'] ?? now()->toDateString(),
                     'tags' => $tagNames,
                 ], DocumentOrigin::Imported);
-
-                // delete any previous chunks
-                $document->chunks()->delete();
-
-                // save the new chunks to avoid repetitions and duplicating information.
-                foreach ($sections as $section) {
-                    $document->chunks()->create([
-                        'headers' => $section['heading'],
-                        'chunk_content' => $section['content'],
-                    ]);
-                }
             });
 
             $created++;

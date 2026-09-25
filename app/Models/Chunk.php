@@ -48,6 +48,14 @@ class Chunk extends Model
         ];
     }
 
+    /**
+     * The text sent to the embedding model: the Document title and section headers give the chunk its context.
+     */
+    public function embeddingText(string $documentTitle): string
+    {
+        return "Document: {$documentTitle}\n Sections: {$this->headers} \n Content: {$this->chunk_content}";
+    }
+
     public function document(): BelongsTo
     {
         return $this->belongsTo(Document::class);
