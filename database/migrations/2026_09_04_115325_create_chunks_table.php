@@ -18,7 +18,7 @@ return new class extends Migration
             $table->text('chunk_content');
             $table->vector('embeddings', dimensions: 768)->nullable();
             $table->tsvector('search_vector')
-                ->storedAs("to_tsvector('english', chunk_content)");
+                ->storedAs(sprintf("to_tsvector('%s', chunk_content)", config('search.language')));
             $table->timestamps();
         });
 

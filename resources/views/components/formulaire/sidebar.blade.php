@@ -1,11 +1,20 @@
 @props(['documents'])
 
 <aside class="w-72 shrink-0 border-r border-[#262D38] bg-[#0D1117] flex flex-col">
-    <div class="p-4 border-b border-[#262D38]">
+    <div class="p-4 border-b border-[#262D38] flex items-center gap-2">
         <button type="button" id="ingest-open"
-            class="block w-full text-center bg-black text-[#E4E7EB] text-sm font-medium rounded-md py-2.5 border border-[#262D38] hover:bg-[#12161C] transition-colors">
+            class="flex-1 text-center bg-black text-[#E4E7EB] text-sm font-medium rounded-md py-2.5 border border-[#262D38] hover:bg-[#12161C] transition-colors">
             + New document
         </button>
+        <a href="{{ request()->routeIs('search.*') ? route('documents.formulaire') : route('search.index') }}"
+            class="shrink-0 flex items-center justify-center size-[42px] rounded-md border border-[#262D38] text-[#C3CAD3] hover:bg-[#12161C] hover:text-[#E4E7EB] transition-colors"
+            aria-label="{{ request()->routeIs('search.*') ? 'Back to chat' : 'Full text search' }}"
+            title="{{ request()->routeIs('search.*') ? 'Back to chat' : 'Full text search' }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-5">
+                <circle cx="11" cy="11" r="7" />
+                <path d="m21 21-4.3-4.3" />
+            </svg>
+        </a>
     </div>
     <div class="flex-1 overflow-y-auto px-2 py-3 space-y-1" id="document-list">
         @forelse ($documents as $doc)

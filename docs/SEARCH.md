@@ -10,3 +10,17 @@ You can run `app/Console/Commands/TestMarkdownSectionExtractor.php` to test the 
 
 
 Re-embedding timing: a full re-embedding of the corpus (131 chunks, all `embeddings` set to null, then `php artisan app:store-embeddings`) takes ~20.6 s on my machine (~157 ms per chunk). Setup: AMD Ryzen 5 8540U (12 threads, 14 GiB RAM), Ollama in Docker via Sail running `nomic-embed-text` (768 dims) on CPU only, model already loaded. Chunks are embedded one request at a time, so batching them into a single `Embeddings::for([...])` call is the obvious lever if this grows.
+for the tsvectors, I chose for the ranking ts_rank_cd, and for the function I choose websearch_to_tsquery, since it takes a raw input as the query which is nicer.
+
+ts_rank_cd is similiar to ts_rank, which basically means it checks the count of how many query words are present and it ignores the position.
+
+however ts_rank_cd, not only counts the words but it also includes the position of the vector and then decides which one is close.
+
+ts_rank_cd works in the following, it scores each other cover using the following formula
+
+cover score = word weight / (1 + number of other words inside the cover)
+
+the word weight is what we choose like weight, otherwise the default weight D.
+
+and the ranking is then eventually chosen base on everything.
+

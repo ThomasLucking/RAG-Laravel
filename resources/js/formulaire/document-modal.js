@@ -51,8 +51,8 @@ export function initDocumentModal() {
         currentSlug = null;
     }
 
-    document.getElementById('document-list').addEventListener('click', async (event) => {
-        const button = event.target.closest('.document-item');
+    document.addEventListener('click', async (event) => {
+        const button = event.target.closest('.document-item, .search-result');
         if (!button) return;
         const slug = button.dataset.slug;
         try {
@@ -99,6 +99,10 @@ export function initDocumentModal() {
 
             const listItem = document.querySelector(`.document-item[data-slug="${doc.slug}"] span:first-child`);
             if (listItem) listItem.textContent = doc.title;
+
+            document
+                .querySelectorAll(`.search-result[data-slug="${doc.slug}"] .search-result-title`)
+                .forEach((title) => (title.textContent = doc.title));
         } catch (e) {
             if (e instanceof ValidationError) {
                 renderFieldErrors(modalForm, e.errors);
@@ -130,7 +134,12 @@ export function initDocumentModal() {
                 list.innerHTML = '<p class="px-3 py-2 text-xs text-[#4A5261]">No documents yet.</p>';
             }
 
+            const isSearchResult = document.querySelector(`.search-result[data-slug="${currentSlug}"]`) !== null;
+
             closeModal();
+
+            // Re-run the search so the deleted document and the result count disappear.
+            if (isSearchResult) window.location.reload();
         } catch (e) {
             modalError.textContent = 'Could not delete document.';
             modalError.classList.remove('hidden');

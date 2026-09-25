@@ -60,3 +60,47 @@ okay so for the embeddings I decided to chunk by headings on level 2 and the lev
 
 within my markdownSectionExtractor there are 2 methods, one for parsing and walking the tree basically iterating through each heading content etc.. then cutting them into chunks properly.
 
+
+
+## full text vocabulary and meaning and understanding
+
+basically full text search is a method to identify natural language documents that satisfy a query, and you can sort the query by relevance.
+
+and it uses full text indexing which means the documents are pre processed and an indey saved for later searching
+posgresSQL parses the documents into tokens which is useful to identify classes of tokens like numbers words and complex words.
+
+then it converts tokens into lexemes, 
+
+# lexeme meaning
+
+lexemes is a string like a token but it has been normalized so that different forms of the same word still get recognised. like it removes the suffixes in english and also it eliminates stop words. words that are very very common in english like 'the'
+
+
+tokens = text fragments
+lexemes = are words that are useful for indexing and searching 
+
+this is useful if a user wants to do a proximity ranking or proximity search 
+proximity search is where two or more separately matching term occurence are within a specified distance
+
+
+in full text search you can set weights to ts_vector like A B C and D, this can be used for to mark entries coming from different parts of a document.
+
+
+a GIN index is basically an inverted index, which means it flops the relationship it maps value -> list of rows containing it.
+
+An inverted index flips the relationship: it maps value → list of rows containing it.
+
+"postgres"  → [doc 3, doc 7, doc 12]
+"index"     → [doc 7, doc 9]
+"vector"    → [doc 2, doc 7]
+
+then the index flips, it
+
+app     → [3]
+fast    → [1, 3]
+index   → [1]
+laravel → [2, 3]
+postgr  → [1, 2]
+talk    → [2]
+
+the words[keys] are sorted in a b-tree so they can be found fats and each key points to list of row id's (posting list)
