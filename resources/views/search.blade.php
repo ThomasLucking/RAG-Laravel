@@ -2,7 +2,7 @@
     <div class="flex h-screen bg-[#0B0E12]">
         <x-formulaire.sidebar :documents="$documents" />
 
-        <main class="flex-1 min-w-0 flex flex-col">
+        <main class="flex-1 min-w-0 flex flex-col overflow-y-auto">
             <div class="mx-auto w-full max-w-3xl px-4 py-10">
                 <h1 class="text-2xl font-semibold text-[#E4E7EB]">Full text search</h1>
                 <p class="mt-2 text-sm text-[#838E9C]">Search across the ingested documents.</p>
@@ -17,6 +17,33 @@
                         </button>
                     </div>
                 </form>
+
+                @if (request()->filled('query'))
+                    <p class="mt-6 text-xs text-[#838E9C]">
+                        {{ $results->count() }} {{ Str::plural('result', $results->count()) }} for "{{ request('query') }}"
+                    </p>
+
+                    <ul class="mt-3 space-y-3">
+                        @forelse ($results as $chunk)
+                            <li class="rounded-xl border border-[#262D38] bg-[#12161C] p-4">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div class="min-w-0">
+                                        <p class="truncate text-sm font-medium text-[#E4E7EB]">{{ $chunk->document?->title }}</p>
+                                        <p class="mt-0.5 truncate text-xs text-[#838E9C]">{{ $chunk->headers }}</p>
+                                    </div>
+                                    <span class="shrink-0 rounded-full bg-[#3C82C4]/15 px-2 py-0.5 text-[10px] font-medium text-[#5A9AD6]">
+                                        {{ number_format($chunk->rank, 3) }}
+                                    </span>
+                                </div>
+                                <p class="mt-3 text-sm leading-6 text-[#C3CAD3]">{{ Str::limit($chunk->chunk_content, 300) }}</p>
+                            </li>
+                        @empty
+                            <li class="rounded-xl border border-dashed border-[#262D38] p-6 text-center text-sm text-[#4A5261]">
+                                No chunks match this query.
+                            </li>
+                        @endforelse
+                    </ul>
+                @endif
             </div>
         </main>
     </div>
