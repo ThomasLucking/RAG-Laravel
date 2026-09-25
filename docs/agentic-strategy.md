@@ -8,7 +8,7 @@ How the slices in [vue-migration-plan.md](vue-migration-plan.md) get built by ag
 |---|---|---|---|
 | Main session (you + Claude) | — | Starts one `migration-planner` per slice, relays its report, you open the PR | — |
 | `migration-planner` | Opus, high | Explores, fetches docs once, writes the slice handoff, delegates, reviews diffs, runs final verification. **Never writes app code.** | `vue-best-practices`, `shadcn-vue` |
-| `migration-implementer` × 2 | Sonnet, medium | Implements one unit of the handoff, test-first, only its own files. Never commits. | `vue-best-practices`, `shadcn-vue`, `tdd` |
+| `migration-implementer` × 1 (× 2 in Slice 2 only) | Sonnet, medium | Implements one unit of the handoff, test-first, only its own files. Never commits. | `vue-best-practices`, `shadcn-vue`, `tdd` |
 
 Definitions: `.claude/agents/migration-planner.md`, `.claude/agents/migration-implementer.md`.
 
@@ -19,33 +19,43 @@ Definitions: `.claude/agents/migration-planner.md`, `.claude/agents/migration-im
 ```
 main ──► migration-planner (Opus)
             │ 1. explore + ctx7 (once)
-            │ 2. write docs/migration/slice-N.md  (Unit A / Unit B, disjoint files, doc snippets, smoke list)
+            │ 2. write docs/migration/slice-N.md  (unit(s), doc snippets, smoke list)
+            ├──► migration-implementer (Sonnet)        one unit — Slices 0, 1, 3, 4
+            │    or, Slice 2 only:
             ├──► migration-implementer A (Sonnet) ─┐  in parallel,
-            ├──► migration-implementer B (Sonnet) ─┘  same working tree
+            ├──► migration-implementer B (Sonnet) ─┘  disjoint files, same working tree
             │ 3. review git diff → fixes via SendMessage to the same implementer
-            │ 4. tests + pint + build + vue-tsc + agent-browser smoke
+            │ 4. full tests + pint + build + vue-tsc + agent-browser smoke
             ▼
 main ◄── [Thing][Action][Summary] report ──► you review, commit, open the PR
 ```
 
-## Slice → unit split (guideline; the planner decides)
+## Implementers per slice
 
-| Slice | Unit A | Unit B |
+**Default: one implementer.** Two only where the work genuinely splits.
+
+| Slice | Implementers | Why |
 |---|---|---|
-| 0 Tests | Document CRUD feature tests | Search + redirect feature tests |
-| 1 Infra | Composer side: Inertia middleware, root view, Wayfinder, `boost:install`, `.ai/rules/` | JS side: Vite + TS + Vue bootstrap, `shadcn-vue init`, `types/index.ts` |
-| 2 Workshop | Controller `index` → Inertia, `expectsJson()` seam, tests, `Workshop.vue` page | `AppLayout`, `DocumentSidebar`, `IngestDialog`, `DocumentDialog`, `ChatPanel` |
-| 3 Search | Controller → Inertia, tests, `Search.vue` | Chunk match card component, any shared component tweaks |
-| 4 Cleanup | Remove JSON branches + JSON-only tests | Delete Blade views and `resources/js/formulaire` |
+| 0 Tests | 1 | ~10 feature tests, small |
+| 1 Infra | 1 | Sequential: Wayfinder's Vite plugin needs the Composer package, and `shadcn-vue init` needs Vue/TS first |
+| 2 Workshop | **2** | **A**: controller `index` → Inertia, `expectsJson()` seam, tests, `Workshop.vue`. **B**: `AppLayout`, `DocumentSidebar`, `IngestDialog`, `DocumentDialog`, `ChatPanel` |
+| 3 Search | 1 | Controller + `Search.vue` + one card component, reusing Slice 2 |
+| 4 Cleanup | 1 | Deletions + removing the seam |
 
-The contract between the units is `types/index.ts` plus component prop signatures. The planner writes them into the handoff so both units can work in parallel without waiting on each other.
+Why not two everywhere: each implementer pays the same startup cost (preloaded skills, plan, `COMPONENTS.md`, handoff), the planner reviews twice, and parallel agents collide in the shared Sail setup even with disjoint files (`pint --dirty` reformats the other agent's PHP, `pnpm add` / `shadcn-vue add` both write `package.json` / `pnpm-lock.yaml` / `components.json`, and `vue-tsc` trips on half-written files).
+
+### Rules for Slice 2's parallel units
+
+- The planner writes the shared contract into the handoff **before** delegating: `types/index.ts` and every component's props/emits. Unit B owns `types/index.ts`, and Unit A imports it as specified.
+- All `shadcn-vue add` / `pnpm add` calls belong to **one** unit (B). If A needs a component, B adds it.
+- Parallel implementers run only their own test files and `vue-tsc`. They **don't** run `pint` or the full suite. The planner runs those once, after both finish.
 
 ## Why this is cheap
 
 - **Opus plans once.** Exploration and ctx7 lookups happen once per slice in the planner. Their results go into the handoff file, so implementers don't redo them.
-- **Short prompts.** "Implement Unit A of `docs/migration/slice-N.md`". The file carries the context, not the prompt.
+- **Short prompts.** "Implement `docs/migration/slice-N.md`" (or "Unit A of …" in Slice 2). The file carries the context, not the prompt.
 - **Skills preloaded**, not discovered, so no exploratory Skill calls.
-- **Disjoint files** mean no merge conflicts and no re-work.
+- **One implementer by default**: its context loads once, and there's one diff to review. Parallelism only where it pays (Slice 2).
 - **Fixes go to the same implementer** through SendMessage, reusing its context instead of starting a fresh agent.
 - **The main session stays thin**: it only sees the planner's final report.
 
@@ -62,8 +72,8 @@ The contract between the units is `types/index.ts` plus component prop signature
 Run each slice on its own branch in the **main checkout**. Don't use `isolation: "worktree"` and don't create worktrees by hand.
 
 - Sail is set up per folder: a worktree needs its own `vendor/`, `node_modules/`, containers and database, and would compete for ports 8000 / 5173 / 5432.
-- The two implementers already work on disjoint files, so they can't conflict in one working tree.
-- Tests, `vue-tsc`, the build and the agent-browser smoke pass need one running app that has both units' changes.
+- A single implementer (or Slice 2's two, on disjoint files) doesn't need isolation.
+- Tests, `vue-tsc`, the build and the agent-browser smoke pass need one running app that has all the slice's changes.
 - Don't edit files by hand while a slice is running.
 
 Exception: if you want to keep working on something else in this repo while a slice runs, put *that other work* in a worktree with its own `APP_PORT`, `VITE_PORT` and `FORWARD_DB_PORT` in `.env`, and run `sail composer install` + `sail pnpm install` there.

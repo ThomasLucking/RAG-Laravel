@@ -36,7 +36,7 @@ Then start `claude` in the repo root and paste:
 ```
 Use the migration-planner agent for Slice <N> of docs/vue-migration-plan.md.
 Follow docs/agentic-strategy.md: write the handoff to docs/migration/slice-<N>.md,
-delegate Unit A and Unit B to two migration-implementer agents in parallel,
+delegate to one migration-implementer (two in parallel only for Slice 2),
 review their diffs, run the slice's "Done when" checks through Sail,
 and report back in [Thing][Action][Summary] format. Do not commit.
 ```

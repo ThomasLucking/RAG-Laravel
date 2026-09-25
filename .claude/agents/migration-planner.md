@@ -1,6 +1,6 @@
 ---
 name: migration-planner
-description: Plans one slice of the Blade → Vue/Inertia/shadcn-vue migration (Opus, high effort), delegates it to two migration-implementer subagents, and reviews their diffs. Use for any slice in docs/vue-migration-plan.md.
+description: Plans one slice of the Blade → Vue/Inertia/shadcn-vue migration (Opus, high effort), delegates it to migration-implementer subagents (one by default, two only in Slice 2), and reviews their diffs. Use for any slice in docs/vue-migration-plan.md.
 model: opus
 effort: high
 skills:
@@ -23,13 +23,12 @@ You plan and review one slice of the frontend migration. You never write applica
 1. **Explore** only the files the slice touches. Fetch library docs with `ctx7` for any Inertia / Vue / shadcn-vue / Wayfinder API you plan to use, and pin the version installed in `composer.json` / `package.json`.
 2. **Write the handoff** to `docs/migration/slice-<N>.md`:
    - the goal and "Done when" copied from the plan
-   - **Unit A** and **Unit B**: disjoint file lists (no file in both), exact changes per file, the tests to write first, and the validation commands
+   - the unit(s): file list, exact changes per file, the tests to write first, and the validation commands. **One unit by default.** Only Slice 2 has two (A: controller + seam + tests + `Workshop.vue`, B: layout + components + `types/index.ts`), with disjoint file lists and the shared contract (`types/index.ts`, every component's props/emits) written out up front
    - the doc snippets the implementers need (so they don't re-fetch them)
    - the agent-browser smoke checklist
-   If the slice can't be split into two disjoint units, use one implementer and say why.
-3. **Delegate** each unit to a `migration-implementer` in parallel. The prompt is short: "Implement Unit A of `docs/migration/slice-<N>.md`." The handoff file carries the detail.
+3. **Delegate** to one `migration-implementer`: "Implement `docs/migration/slice-<N>.md`." In Slice 2, start two in parallel ("Implement Unit A of …" / "Unit B of …"). Give every `pnpm add` / `shadcn-vue add` to Unit B, and tell both units: own test files and `vue-tsc` only, no `pint`, no full suite. The handoff file carries the detail.
 4. **Review** `git diff` against the handoff, `COMPONENTS.md` and the backend rule below. Send fixes back to the same implementer (SendMessage) with file:line and the rule broken. Don't edit code yourself.
-5. **Verify** once both units are clean:
+5. **Verify** once the implementation is clean:
    - `sail artisan test --compact`
    - `sail pint --dirty --format agent`
    - `sail pnpm run build`, plus `sail pnpm exec vue-tsc --noEmit` once TypeScript is set up

@@ -23,7 +23,7 @@
 | Naming | "formulaire" is retired. The page is **Workshop**. `/formulaire` stays as a redirect only. |
 | Backend | Barely changes: only controller return statements / prop shaping, the temporary seam, Inertia/Wayfinder wiring, redirects and tests. No changes to models, services, jobs, Form Requests, migrations, Resources or validation. |
 | UI | Everything is shadcn-vue, per [COMPONENTS.md](../COMPONENTS.md). |
-| Execution | [agentic-strategy.md](agentic-strategy.md): Opus `migration-planner` + 2 Sonnet `migration-implementer`s per slice. |
+| Execution | [agentic-strategy.md](agentic-strategy.md): Opus `migration-planner` + 1 Sonnet `migration-implementer` per slice (2 in parallel for Slice 2 only). |
 | Environment | Everything runs through **Laravel Sail** (`compose.yaml`: `laravel.test` on PHP 8.5, `pgsql` with pgvector, `ollama`). No host PHP, Composer, pnpm or Postgres. See [Environment](#environment-sail). |
 | State | No Pinia. Page props + composables. |
 | SSR | No. |
