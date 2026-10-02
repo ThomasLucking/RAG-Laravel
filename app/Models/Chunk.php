@@ -22,13 +22,19 @@ class Chunk extends Model
         // selects everything then ranks the search query based on parameters provided by the controller.
         // this not only does the filtering and it also does the ranking with ts_rank_cd.
         // ts_rank_cd is cover density ranking, and websearch_to_tsquery basically inputs raw text and turns it into a ts_query.
+        // the & between the included terms is swapped for | so a chunk matches on any term instead of all of them.
+        // excluded terms (-term) are kept apart and ANDed back as a negation, so they still filter chunks out.
         // DISTINCT ON keeps only the best ranked chunk of each document, so a document is listed once.
         $language = config('search.language');
+        [$includedTerms, $excludedTerms] = static::splitExcludedTerms($input);
+
+        $tsquery = "(replace(websearch_to_tsquery(?::regconfig, ?)::text, ' & ', ' | ')::tsquery && !!websearch_to_tsquery(?::regconfig, ?))";
+        $bindings = [$language, $includedTerms, $language, $excludedTerms];
 
         $bestChunkPerDocument = static::query()
             ->selectRaw('DISTINCT ON (document_id) *')
-            ->selectRaw('ts_rank_cd(search_vector, websearch_to_tsquery(?::regconfig, ?), 1) AS rank', [$language, $input])
-            ->whereRaw('search_vector @@ websearch_to_tsquery(?::regconfig, ?)', [$language, $input])
+            ->selectRaw("ts_rank_cd(search_vector, {$tsquery}, 1) AS rank", $bindings)
+            ->whereRaw("search_vector @@ {$tsquery}", $bindings)
             ->orderBy('document_id')
             ->orderByDesc('rank');
 
@@ -36,6 +42,23 @@ class Chunk extends Model
             ->fromSub($bestChunkPerDocument, 'chunks')
             ->orderByDesc('rank')
             ->limit($limit);
+    }
+
+    /**
+     * Splits websearch input into the included terms and the excluded (-term or -"phrase") terms, ORed together.
+     *
+     * @return array{0: string, 1: string}
+     */
+    protected static function splitExcludedTerms(string $input): array
+    {
+        $excludedPattern = '/(?<!\S)-("[^"]*"|\S+)/';
+
+        preg_match_all($excludedPattern, $input, $matches);
+
+        return [
+            trim(preg_replace($excludedPattern, '', $input)),
+            implode(' or ', $matches[1]),
+        ];
     }
 
     /**
