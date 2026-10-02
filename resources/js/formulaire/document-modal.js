@@ -52,7 +52,7 @@ export function initDocumentModal() {
     }
 
     document.addEventListener('click', async (event) => {
-        const button = event.target.closest('.document-item, .search-result');
+        const button = event.target.closest('.document-item, .search-result, .chat-fragment-document');
         if (!button) return;
         const slug = button.dataset.slug;
         try {

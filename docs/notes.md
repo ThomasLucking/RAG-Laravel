@@ -104,3 +104,23 @@ postgr  → [1, 2]
 talk    → [2]
 
 the words[keys] are sorted in a b-tree so they can be found fats and each key points to list of row id's (posting list)
+
+so basically what happens to chunks and how can chunks be recognised via meaning.
+
+it's in 5 steps. 
+
+tokenizer -> which splits the text in subwork pieces and maps each of them to an ID.
+
+Embedding table -> basically a mathematical matrix that sorts those tokens into vectors and similiatudes.
+
+there's a self-aztention layer, which basically means the tokens exchanged information between them
+
+then each token processes what it just received alone.
+
+tokens vectors out.
+
+then pooling basically assembles all the tokens together.
+
+## embedding prefixes
+
+the prefixes (`search_query: ` / `search_document: `) are labels that tell nomic-embed-text whether the text is a question or a document chunk, so a query vector lands close to the chunks that answer it. both sides must use the matching label, and changing a prefix means re-embedding every stored chunk.
