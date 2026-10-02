@@ -39,7 +39,7 @@ class EmbedDocumentChunks implements ShouldQueue
             ->lazyById();
 
         foreach ($chunks as $chunk) {
-            $chunk->update(['embeddings' => EmbeddingService::embeddding($chunk->embeddingText($this->document->title))->first()]);
+            $chunk->update(['embeddings' => EmbeddingService::embedDocument($chunk->embeddingText($this->document->title))->first()]);
         }
     }
 }

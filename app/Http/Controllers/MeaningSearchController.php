@@ -13,7 +13,7 @@ class MeaningSearchController extends Controller
 {
     public function __invoke(UserQueryRequest $request): AnonymousResourceCollection|JsonResponse
     {
-        $queryEmbedding = EmbeddingService::embeddding($request->validated('query'))->first();
+        $queryEmbedding = EmbeddingService::embedQuery($request->validated('query'))->first();
 
         $similiarFragments = Chunk::query()
             ->with('document:id,slug,title')

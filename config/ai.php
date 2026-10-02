@@ -128,6 +128,8 @@ return [
                 'embeddings' => [
                     'default' => env('OLLAMA_EMBEDDING_MODEL', 'nomic-embed-text'),
                     'dimensions' => (int) env('OLLAMA_EMBEDDING_DIMENSIONS', 768),
+                    'query_prefix' => env('OLLAMA_EMBEDDING_QUERY_PREFIX', 'search_query: '),
+                    'document_prefix' => env('OLLAMA_EMBEDDING_DOCUMENT_PREFIX', 'search_document: '),
                 ],
             ],
         ],

@@ -163,3 +163,12 @@ test('meaning search is rate limited before reaching the embedding provider', fu
 
     Embeddings::assertNotGenerated(fn (EmbeddingsPrompt $prompt): bool => $prompt->contains('third'));
 });
+
+test('meaning search embeds the query with the configured query prefix', function () {
+    fakeQueryEmbedding();
+    config(['ai.providers.ollama.models.embeddings.query_prefix' => 'search_query: ']);
+
+    $this->postJson(route('user.query'), ['query' => 'feline napping'])->assertOk();
+
+    Embeddings::assertGenerated(fn (EmbeddingsPrompt $prompt): bool => $prompt->inputs === ['search_query: feline napping']);
+});
