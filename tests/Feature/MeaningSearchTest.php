@@ -150,3 +150,17 @@ test('both search modes are reachable from the same page', function () {
         ->assertSee(route('user.query'), escape: false)
         ->assertSee(route('search.index'), escape: false);
 });
+
+test('meaning search is rate limited before reaching the embedding provider', function () {
+    config(['search.queries_per_minute' => 2]);
+    fakeQueryEmbedding();
+
+    $this->postJson(route('user.query'), ['query' => 'first'])->assertOk();
+    $this->postJson(route('user.query'), ['query' => 'second'])->assertOk();
+
+    Embeddings::fake();
+
+    $this->postJson(route('user.query'), ['query' => 'third'])->assertTooManyRequests();
+
+    Embeddings::assertNothingGenerated();
+});
