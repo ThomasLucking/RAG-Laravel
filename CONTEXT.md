@@ -12,4 +12,8 @@
 
 **Deleted Document** — a soft-deleted Document. Its chunks are hard-deleted, but the row stays as a tombstone so the corpus seed never re-imports its slug.
 
-**Workshop** — the `/formulaire` UI where users create, edit, and delete Documents.
+**Chunk** — one indexed section of a Document, produced by splitting its content on markdown headings. "Fragment" is a retired synonym.
+
+**Chunk match** — a Chunk returned by a search, together with its score (full-text rank or vector similarity/distance).
+
+**Workshop** — the UI where users create, edit, and delete Documents (formerly called "formulaire"; that name is retired).
