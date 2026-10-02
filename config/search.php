@@ -24,7 +24,7 @@ return [
     |
     */
 
-    'min_similarity' => (float) env('SEARCH_MIN_SIMILARITY', 0.7),
+    'min_similarity' => (float) env('SEARCH_MIN_SIMILARITY', 0.6),
 
     /*
     |--------------------------------------------------------------------------

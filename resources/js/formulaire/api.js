@@ -24,7 +24,9 @@ export async function documentFetch(url, options = {}) {
     }
 
     if (!response.ok && response.status !== 204) {
-        throw new Error(`Request to ${url} failed with status ${response.status}.`);
+        throw Object.assign(new Error(`Request to ${url} failed with status ${response.status}.`), {
+            status: response.status,
+        });
     }
 
     if (response.status === 204) {

@@ -110,7 +110,9 @@ export function initChat() {
             pending.remove();
             renderFragments(data, message);
         } catch (error) {
-            pending.textContent = error.errors?.query?.[0] ?? 'Something went wrong while querying the corpus.';
+            pending.textContent = error.status === 429
+                ? 'Too many searches, please wait a moment and try again.'
+                : error.errors?.query?.[0] ?? 'Something went wrong while querying the corpus.';
             pending.className = 'text-sm text-red-400';
         }
     });

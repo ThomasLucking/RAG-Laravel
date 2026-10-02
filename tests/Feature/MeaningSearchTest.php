@@ -4,6 +4,7 @@ use App\Models\Chunk;
 use App\Models\Document;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Ai\Embeddings;
+use Laravel\Ai\Prompts\EmbeddingsPrompt;
 
 uses(RefreshDatabase::class);
 
@@ -158,9 +159,7 @@ test('meaning search is rate limited before reaching the embedding provider', fu
     $this->postJson(route('user.query'), ['query' => 'first'])->assertOk();
     $this->postJson(route('user.query'), ['query' => 'second'])->assertOk();
 
-    Embeddings::fake();
-
     $this->postJson(route('user.query'), ['query' => 'third'])->assertTooManyRequests();
 
-    Embeddings::assertNothingGenerated();
+    Embeddings::assertNotGenerated(fn (EmbeddingsPrompt $prompt): bool => $prompt->contains('third'));
 });
