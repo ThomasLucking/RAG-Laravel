@@ -120,3 +120,7 @@ then each token processes what it just received alone.
 tokens vectors out.
 
 then pooling basically assembles all the tokens together.
+
+## embedding prefixes
+
+the prefixes (`search_query: ` / `search_document: `) are labels that tell nomic-embed-text whether the text is a question or a document chunk, so a query vector lands close to the chunks that answer it. both sides must use the matching label, and changing a prefix means re-embedding every stored chunk.
