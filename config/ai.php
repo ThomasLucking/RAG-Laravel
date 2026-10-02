@@ -13,12 +13,12 @@ return [
     |
     */
 
-    'default' => 'openai',
-    'default_for_images' => 'gemini',
-    'default_for_audio' => 'openai',
-    'default_for_transcription' => 'openai',
+    'default' => env('AI_DEFAULT_PROVIDER', 'openai'),
+    'default_for_images' => env('AI_IMAGES_PROVIDER', 'gemini'),
+    'default_for_audio' => env('AI_AUDIO_PROVIDER', 'openai'),
+    'default_for_transcription' => env('AI_TRANSCRIPTION_PROVIDER', 'openai'),
     'default_for_embeddings' => env('AI_EMBEDDINGS_PROVIDER', 'ollama'),
-    'default_for_reranking' => 'cohere',
+    'default_for_reranking' => env('AI_RERANKING_PROVIDER', 'cohere'),
 
     /*
     |--------------------------------------------------------------------------
@@ -33,8 +33,8 @@ return [
 
     'caching' => [
         'embeddings' => [
-            'cache' => false,
-            'store' => env('CACHE_STORE', 'database'),
+            'cache' => (bool) env('AI_CACHE_EMBEDDINGS', false),
+            'store' => env('AI_CACHE_EMBEDDINGS_STORE', env('CACHE_STORE', 'database')),
             'individually' => true,
         ],
     ],

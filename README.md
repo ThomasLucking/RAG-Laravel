@@ -110,24 +110,35 @@ Replace `ollama` with `localhost` when running these from your host machine inst
 - **App → Ollama connectivity:** from inside the app container, `curl http://ollama:11434` should respond with `Ollama is running`.
 - **App → Postgres connectivity:** confirm `DB_HOST=pgsql` (not `localhost`) in `.env`, matching the service name in `compose.yaml`.
 
-## LLM Performance Metrics
+## Statistics
 
-Local LLM benchmarks are captured via [`docs/evaluate.js`](docs/evaluate.js), which hits a local Ollama instance and logs generation/embedding timings. Results are recorded in [`docs/llm_metrics.md`](docs/llm_metrics.md).
+Search benchmarks (FTS vs RAG, `nomic-embed-text` vs `qwen3-embedding:4b`), machine specs, and query plans are in [`docs/statistics.md`](docs/statistics.md).
 
-**Generation** (`llama3.2:3b`)
 
-| Metric | Value |
-| --- | --- |
-| Total duration | 655.19 ms |
-| Load duration | 3.10 ms |
-| Prompt eval duration | 83.24 ms |
-| Prompt eval count | 32 tokens |
-| Eval duration | 567.11 ms |
-| Eval count | 8 tokens |
+## Conclusion
 
-**Embedding** (`nomic-embed-text`)
+**FTS vs RAG.** FTS matches basically words, and not the meaning so it struggles a little bit depending on the question you ask.
 
-| Metric | Value |
-| --- | --- |
-| Elapsed time | 13.45 ms |
-| Vector length | 768 |
+**nomic-embed-text vs qwen3-embedding:4b.** Both models returned the same top document
+for all 6 questions, so the bigger model didn't improve top-1 accuracy here. The
+differences are:
+- **Latency:** qwen3 is a lot slower than the normal embedding model
+- **Score spread:** at `min_similarity` 0.5, nomic keeps 78–130 of 131 chunks, so the
+  threshold barely filters anything. qwen3 keeps 2–5. For RAG + LLM, qwen3 gives
+  tighter context without retuning the threshold.
+
+**When to use which.** 
+
+SQL execution is around the same, but FTS is faster since it doesn't rely on 2 models, 1 for embeddings and 1 for generation of the summary,
+if for example an application needs to do FTS across data or documents, and it wants to fine similiar words then what it is said in the query. then it is better to use FTS.
+
+however if you want to implement RAG inside of an application to really capture the meaning of the query across multiple chunks. then implementing RAG would be better in this case.
+But you need to consider the price of hosting embedding model and the LLM. 
+
+
+# which one for this type of corpus.
+for this type of exercise, for the corpus. I prefer the RAG since I am able to ask questions that have more meaning or possibly even use abbreviations that an LLM might be able to understand, however if I asked using very technical words then FTS wins.
+
+
+**Limits.** 6 questions, 131 chunks, sequential scans only, different hardware for the
+two embedding models. Behaviour at larger scale (with GIN / HNSW indexes) wasn't tested.

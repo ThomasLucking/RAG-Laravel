@@ -37,7 +37,7 @@
                                             {{ number_format($chunk->rank, 3) }}
                                         </span>
                                     </span>
-                                    <span class="mt-3 block text-sm leading-6 text-[#C3CAD3]">{{ Str::limit($chunk->chunk_content, 300) }}</span>
+                                    <span class="mt-3 block text-sm leading-6 text-[#C3CAD3]">{{ $chunk->chunk_content }}</span>
                                 </button>
                             </li>
                         @empty
